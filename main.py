@@ -1,18 +1,18 @@
 from tkinter import *
 from tkinter import font
 from tkinter.ttk import Treeview
-from lexer import *
-
-def execute():
-    # Delete existing items in the lexemeTableTreeview
-    lexemeTableTreeview.delete(*lexemeTableTreeview.get_children())
-
-    # lexer analysis
-    lexemeTable = lexer(codeInputTextBox.get("1.0",END))
-
-    # Populate lexemeTableTreeview with the results
-    for l in lexemeTable:
-        lexemeTableTreeview.insert('', 'end', values=(l["lexeme"], l["classification"]))
+# from lexer import *
+#
+# def execute():
+#     # Delete existing items in the lexemeTableTreeview
+#     lexemeTableTreeview.delete(*lexemeTableTreeview.get_children())
+#
+#     # lexer analysis
+#     lexemeTable = lexer(codeInputTextBox.get("1.0",END))
+#
+#     # Populate lexemeTableTreeview with the results
+#     for l in lexemeTable:
+#         lexemeTableTreeview.insert('', 'end', values=(l.value, lexemeDescription[l.classification]))
 
 
 window = Tk()
