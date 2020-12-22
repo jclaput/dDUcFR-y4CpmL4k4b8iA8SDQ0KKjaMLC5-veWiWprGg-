@@ -97,6 +97,25 @@ class Parser:
 
         return BinOp(left, node, right)
 
+    def parseNotUnaryOperation(self):
+        #<not> ::= NOT <expression>
+
+        node = self.currentToken
+        self.advance()
+
+        if self.currentToken.tag == "TT_TROOF":
+            operand = Bool(self.currentToken)
+        elif self.currentToken.tag in BOOLEAN_BINARY_OPERATIONS:
+            operand = self.parseBooleanBinaryOperation()
+        elif self.currentToken.tag == "TT_NOT":
+            operand = self.parseNotUnaryOperation()
+        else:
+            print("ERROR: Expected an boolean expression")
+            return
+
+        return UnOp(node, operand)
+
+
     def run(self):
         while self.currentToken.tag != "TT_END_OF_FILE":
             if self.currentToken.tag == "TT_DELIMITER":
@@ -106,6 +125,8 @@ class Parser:
                 self.trees.insert(0, self.parseArithmeticBinaryOperation())
             elif self.currentToken.tag in BOOLEAN_BINARY_OPERATIONS:
                 self.trees.insert(0, self.parseBooleanBinaryOperation())
+            elif self.currentToken.tag == "TT_NOT":
+                self.trees.insert(0, self.parseNotUnaryOperation())
             else:
                 print("ERROR: cannot parse %s" % repr(self.currentToken))
                 return

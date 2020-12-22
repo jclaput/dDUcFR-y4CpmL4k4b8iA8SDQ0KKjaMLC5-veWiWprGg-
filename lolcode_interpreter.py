@@ -23,6 +23,10 @@ class Interpreter:
         visitor = getattr(self, methodName)
         return visitor(node)
 
+    def visit_UnOp(self, node):
+        if node.token.tag == "TT_NOT":
+            return not self.visit(node.operand)
+
     def visit_BinOp(self, node):
         if node.token.tag == "TT_ADD":
             return self.visit(node.left) + self.visit(node.right)
