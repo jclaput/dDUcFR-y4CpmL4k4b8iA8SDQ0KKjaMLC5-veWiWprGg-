@@ -26,12 +26,36 @@ class Interpreter:
     def visit_BinOp(self, node):
         if node.token.tag == "TT_ADD":
             return self.visit(node.left) + self.visit(node.right)
+        if node.token.tag == "TT_SUB":
+            return self.visit(node.left) - self.visit(node.right)
+        if node.token.tag == "TT_MUL":
+            return self.visit(node.left) * self.visit(node.right)
+        if node.token.tag == "TT_DIV":
+            return self.visit(node.left) / self.visit(node.right)
+        if node.token.tag == "TT_MOD":
+            return self.visit(node.left) % self.visit(node.right)
+        if node.token.tag == "TT_MAX":
+            return max(self.visit(node.left), self.visit(node.right))
+        if node.token.tag == "TT_MIN":
+            return min(self.visit(node.left), self.visit(node.right))
+        if node.token.tag == "TT_AND":
+            return self.visit(node.left) and self.visit(node.right)
+        if node.token.tag == "TT_XOR":
+            return self.visit(node.left) ^ self.visit(node.right)
+        if node.token.tag == "TT_OR":
+            return self.visit(node.left) or self.visit(node.right)
 
     def visit_Num(self, node):
         if node.token.tag == "TT_NUMBR":
             return int(node.value)
         elif node.token.tag == "TT_NUMBAR":
             return float(node.value)
+
+    def visit_Bool(self, node):
+        if node.value == "WIN":
+            return True
+        elif node.value == "FAIL":
+            return False
 
 symbolTable = dict()
 
@@ -42,4 +66,5 @@ myParser = Parser(tokens)
 myParser.run()
 
 myInterpreter = Interpreter(myParser)
+# print(tokens)
 print(myInterpreter())
