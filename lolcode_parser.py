@@ -1,80 +1,64 @@
+from ast import *
 
 class Parser:
     def __init__(self, tokens):
-        self.index = 0
         self.tokens = tokens
-        self.classificationFunctionTable = { "Addition Operator" : self.sumOf }
+        self.pos = 0
+        self.currentToken = self.tokens[self.pos]
+        self.trees = []
+
 
     def advance(self):
-        self.index += 1
-        return self.tokens[self.index]
+        self.pos += 1
+        self.currentToken = self.tokens[self.pos]
 
-    def run(self):
-        if self.getCurrentToken().value != "HAI":
-            print("Error: expected HAI")
-            return
+    def parse_sumOf(self):
+        # <add> ::= SUM OF <expression> AN <expression>
 
+        node = self.currentToken
+
+        # point to the next token
         self.advance()
 
-        while self.getCurrentToken().classification != "End-Of-File":
-            if self.getCurrentToken().classification in ("Linebreak", "Delimiter"):
+        if self.currentToken.tag in ("TT_NUMBR, TT_NUMBAR"):
+            left = Num(self.currentToken)
+        elif self.currentToken.tag == "TT_ADD":
+            left = self.parse_sumOf()
+        else:
+            print("ERROR: Expected an arithmetic expression")
+
+        # point to the next token
+        self.advance()
+
+        if self.currentToken.tag != "TT_MULT_ARITY_CONJUCTOR":
+            print("ERROR: Expected AN")
+            return
+
+        # point to the next token
+        self.advance()
+
+        if self.currentToken.tag in ("TT_NUMBR, TT_NUMBAR"):
+            right = Num(self.currentToken)
+        elif self.currentToken.tag == "TT_ADD":
+            right = self.parse_sumOf()
+        else:
+            print("ERROR: Expected an arithmetic expression")
+            return
+
+        return BinOp(left, node, right)
+
+
+    def run(self):
+        while self.currentToken.tag != "TT_END_OF_FILE":
+            if self.currentToken.tag == "TT_DELIMITER":
                 self.advance()
                 continue
-
-            result = self.classificationFunctionTable[self.getCurrentToken().classification]()
-
-            print(result)
-
-            if result is None:
-                print("Parsing Failure")
-                return
+            if self.currentToken.tag == "TT_ADD":
+                self.trees.insert(0,self.parse_sumOf())
 
             self.advance()
 
 
-    def getCurrentToken(self):
-        return self.tokens[self.index]
-
-    def sumOf(self):
-        nextToken = self.advance()
-        left = None
-        right = None
-
-        if nextToken.classification in ("YARN Literal", "TROOF Literal"):
-            print("Error: expected NUMBR or NUMBAR data type")
-            return
-        elif nextToken.classification in ("NUMBR Literal", "NUMBAR Literal"):
-            left = nextToken.value
-        elif nextToken.classification in \
-        ("Addition Operator", "Subtraction Operator", "Multiplication Operator", "Division Operator", "Modulo Operator",
-        "Max Operator", "Min Operator"):
-
-            left = self.classificationFunctionTable[nextToken.classification]()
-        else:
-            print("Error: expected arithmetic expression after SUM OF")
-            return
-
-        nextToken = self.advance()
-
-        if nextToken.value != "AN":
-            print("Error: expected AN")
-            return
-        else:
-            nextToken = self.advance()
 
 
 
-        if nextToken.classification in ("YARN Literal", "TROOF Literal"):
-            print("Error: expected NUMBR or NUMBAR data type")
-            return
-        elif nextToken.classification in ("NUMBR Literal", "NUMBAR Literal"):
-            right = nextToken.value
-        elif nextToken.classification in (
-        "Addition Operator", "Subtraction Operator", "Multiplication Operator", "Division Operator", "Modulo Operator",
-        "Max Operator", "Min Operator"):
-            right = self.classificationFunctionTable[right.value]()
-        else:
-            print("Error: expected arithmetic expression")
-            return
-
-        return int(left) + int(right)

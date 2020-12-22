@@ -112,11 +112,9 @@ lexemeDescription = {
     "BOTH SAEM": "Equal Comparison Logical Operator",
     "DIFFRINT": "Not Equal Comparison Logical Operator",
     "SMOOSH": "String Concatenation Operator",
-    "MAEK": "Explicit Typecasting For Expression",
     "A": "Type Operator",
     "AN": "Multiple Arity Conjunctor",
-    "MKAY": "Multiple Arity Conjunctor",
-    "IS NOW A": "Explicit Typecasting for Variable",
+    "MKAY": "Multiple Arity Ender",
     "VISIBLE": "Printing",
     "GIMMEH": "Input",
     "O RLY?": "If Statement Start",
@@ -132,6 +130,65 @@ lexemeDescription = {
     "UNKNOWN": "Unknown"
 }
 
+tokenTag = {
+    "NUMBR": "TT_NUMBR",
+    "NUMBAR": "TT_NUMBAR",
+    "YARN": "TT_YARN",
+    "TROOF": "TT_TROOF",
+    "TYPE": "TT_DATA_TYPE",
+    "HAI": "TT_DELIMITER",
+    "KTHXBYE": "TT_DELIMITER",
+    "BTW": "TT_SINGLE_COMMENT",
+    "OBTW": "TT_MULT_COMMENT_START",
+    "TLDR": "TT_MULT_COMMENT_END",
+    "I HAS A": "TT_VAR_DECLARATION",
+    "ITZ": "TT_VAR_ASSIGNMENT",
+    "R": "TT_ASSIGN_TO_VAR",
+    "SUM OF": "TT_ADD",
+    "DIFF OF": "TT_SUB",
+    "PRODUKT OF": "TT_MUL",
+    "QUOSHUNT OF": "TT_DIV",
+    "MOD OF": "TT_MOD",
+    "BIGGR OF": "TT_MAX",
+    "SMALLR OF": "TT_MIN",
+    "BOTH OF": "TT_AND",
+    "EITHER OF": "TT_OR",
+    "WON OF": "TT_XOR",
+    "NOT": "TT_NOT",
+    "ANY OF": "TT_INFINITY_OR",
+    "ALL OF": "TT_INFINITY_AND",
+    "BOTH SAEM": "TT_EQUAL",
+    "DIFFRINT": "TT_NOT_EQUAL",
+    "SMOOSH": "TT_CONCAT",
+    "A": "TT_TYPE_OPERATOR",
+    "AN": "TT_MULT_ARITY_CONJUCTOR",
+    "MKAY": "TT_MULT_ARITY_ENDER",
+    "VISIBLE": "TT_PRINT",
+    "GIMMEH": "TT_INPUT",
+    "O RLY?": "TT_IF_START",
+    "YA RLY": "TT_IF_BLOCK",
+    "MEBBE": "TT_ELSE_IF_BLOCK",
+    "NO WAI": "TT_ELSE_BLOCK",
+    "OIC": "TT_IF_SWITCH_END",
+    "WTF?": "TT_SWITCH_START",
+    "OMG": "TT_SWITCH_BLOCK",
+    "OMGWTF": "TT_DEFAULT_CASE_BLOCK",
+    "VARIADENT": "TT_IDENTIFIER",
+    "\n": "TT_LINEBREAK",
+}
+
+def readSourceCode(filePath):
+    try:
+        sourceCode = open(filePath, "r")
+    except FileNotFoundError:
+        print("File Not Found Error!")
+        sys.exit()
+
+    sourceCodeString = sourceCode.read()
+    sourceCode.close()
+
+    # source code to string then return
+    return sourceCodeString
 
 def lexemeIsEmpty(lexeme):
     if not lexeme or lexeme.isspace():
@@ -149,10 +206,10 @@ def lexemeHasDoubleQuote(lexeme):
     return (re.match("^\"[^\"]*$", lexeme))
 
 def getLexemeClassification(lexeme):
-    if re.match(NUMBR_LITERAL_REGEX, lexeme):
-        return "NUMBR"
-    elif re.match(NUMBAR_LITERAL_REGEX, lexeme):
+    if re.match(NUMBAR_LITERAL_REGEX, lexeme):
         return "NUMBAR"
+    elif re.match(NUMBR_LITERAL_REGEX, lexeme):
+        return "NUMBR"
     elif re.match(YARN_LITERAL_REGEX, lexeme):
         return "YARN"
     elif re.match(TROOF_LITERAL_REGEX, lexeme):
@@ -284,7 +341,7 @@ def lexer(sourceCodeString):
 
             # Valid lexeme so just add to the lexeme table
             if classification != "UNKNOWN":
-                lexemeTable.append(Token(currentWord, lexemeDescription[classification]))
+                lexemeTable.append(Token(currentWord, tokenTag[classification]))
                 TO_APPEND_FLAG = False
                 ENCOUNTERED_DOUBLE_QUOTE = False
                 continue
@@ -298,7 +355,7 @@ def lexer(sourceCodeString):
                     ENCOUNTERED_DOUBLE_QUOTE = True
                     TO_APPEND_FLAG = True
                 elif re.match(VARIABLE_IDENTIFIER_REGEX, currentWord):
-                    lexemeTable.append(Token(currentWord, "VARIADENT"))
+                    lexemeTable.append(Token(currentWord, "TT_IDENTIFIER"))
                     TO_APPEND_FLAG = False
                     ENCOUNTERED_DOUBLE_QUOTE = False
 
@@ -308,8 +365,8 @@ def lexer(sourceCodeString):
                     return
 
         # Append newline after finishing getting tokens per line to denote linebreak or codeblock delimiter
-        lexemeTable.append(Token("\n", "Linebreak"))
+        lexemeTable.append(Token("\n", "TT_DELIMITER"))
 
-    lexemeTable.append(Token("EOF", "End-Of-File"))
+    lexemeTable.append(Token("EOF", "TT_END_OF_FILE"))
 
     return lexemeTable
