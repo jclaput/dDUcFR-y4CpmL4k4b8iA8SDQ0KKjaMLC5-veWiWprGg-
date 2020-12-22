@@ -109,9 +109,9 @@ lexemeDescription = {
     "NOT": "NOT Logical Operator",
     "ANY OF": "Infinite Arity OR Operator",
     "ALL OF": "Infinite Arity AND Operator",
+    "SMOOSH": "String Concatenation Operator",
     "BOTH SAEM": "Equal Comparison Logical Operator",
     "DIFFRINT": "Not Equal Comparison Logical Operator",
-    "SMOOSH": "String Concatenation Operator",
     "A": "Type Operator",
     "AN": "Multiple Arity Conjunctor",
     "MKAY": "Multiple Arity Ender",
@@ -157,11 +157,11 @@ tokenTag = {
     "NOT": "TT_NOT",
     "ANY OF": "TT_INFINITY_OR",
     "ALL OF": "TT_INFINITY_AND",
+    "SMOOSH": "TT_INFINITY_CONCAT",
     "BOTH SAEM": "TT_EQUAL",
     "DIFFRINT": "TT_NOT_EQUAL",
-    "SMOOSH": "TT_CONCAT",
     "A": "TT_TYPE_OPERATOR",
-    "AN": "TT_MULT_ARITY_CONJUCTOR",
+    "AN": "TT_MULT_ARITY_CONJUNCTOR",
     "MKAY": "TT_MULT_ARITY_ENDER",
     "VISIBLE": "TT_PRINT",
     "GIMMEH": "TT_INPUT",
@@ -174,7 +174,7 @@ tokenTag = {
     "OMG": "TT_SWITCH_BLOCK",
     "OMGWTF": "TT_DEFAULT_CASE_BLOCK",
     "VARIADENT": "TT_IDENTIFIER",
-    "\n": "TT_LINEBREAK",
+    "\n": "TT_DELIMITER",
 }
 
 def readSourceCode(filePath):

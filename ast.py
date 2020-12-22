@@ -3,6 +3,13 @@ class AST:
         pass
 
 
+class InfOp(AST):
+    def __init__(self, op, child):
+        self.token = op
+        self.op = op
+        self.child = child
+        self.value = None
+
 class BinOp(AST):
     def __init__(self, left, op, right):
         self.left = left
@@ -22,6 +29,11 @@ class Num:
         self.value = token.value
 
 class Bool:
+    def __init__(self, token):
+        self.token = token
+        self.value = token.value
+
+class String:
     def __init__(self, token):
         self.token = token
         self.value = token.value
