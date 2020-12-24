@@ -2,7 +2,6 @@ class AST:
     def __init__(self):
         pass
 
-
 class InfOp(AST):
     def __init__(self, op, child):
         self.token = op
@@ -22,6 +21,17 @@ class UnOp(AST):
         self.token = operator
         self.operator = operator
         self.operand = operand
+
+class VariableDeclaration(AST):
+    def __init__(self, token, varObj, varValue):
+        self.token = token
+        self.varObj = varObj
+        self.varValue = varValue
+
+class Variable(AST):
+    def __init__(self, token):
+        self.token = token
+        self.name = token.value
 
 class Num:
     def __init__(self, token):

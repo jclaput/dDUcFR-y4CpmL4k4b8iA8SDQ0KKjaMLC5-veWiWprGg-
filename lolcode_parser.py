@@ -228,8 +228,6 @@ class Parser:
             print("ERROR: Expected an valid expression")
             return
 
-
-
         return result
 
     def parseSmoosh(self):
@@ -337,6 +335,54 @@ class Parser:
 
         return UnOp(node, operand)
 
+    def parseVariableDeclaration(self):
+        # <declaration> ::= I HAS A variadent | I HAS A variadent ITZ <expression>
+
+        node = self.currentToken
+        varObj = None
+        varValue = None
+
+        self.advance()
+
+        if self.currentToken.tag != "TT_IDENTIFIER":
+            print("ERROR: expected a variable identifier")
+            return
+
+        varObj = Variable(self.currentToken)
+
+        self.advance()
+
+        if self.currentToken.tag != "TT_DELIMITER":
+            if self.currentToken.tag != "TT_VAR_ASSIGNMENT":
+                print("ERROR: expected ITZ")
+                return
+
+            self.advance()
+
+            if self.currentToken.tag in ("TT_NUMBR, TT_NUMBAR"):
+                varValue = Num(self.currentToken)
+            elif self.currentToken.tag == "TT_TROOF":
+                varValue = Bool(self.currentToken)
+            elif self.currentToken.tag == "TT_YARN":
+                varValue = String(self.currentToken)
+            elif self.currentToken.tag in ARITHMETIC_BINARY_OPERATIONS:
+                varValue = self.parseArithmeticBinaryOperation()
+            elif self.currentToken.tag in BOOLEAN_BINARY_OPERATIONS:
+                varValue = self.parseBooleanBinaryOperation()
+            elif self.currentToken.tag in COMPARISON_OPERATIONS:
+                varValue = self.parseComparisonBinaryOperation()
+            elif self.currentToken.tag == "TT_NOT":
+                varValue = self.parseNotUnaryOperation()
+            else:
+                print("ERROR: expected a valid expression")
+                return
+
+        return VariableDeclaration(node, varObj, varValue)
+
+    def parseVariable(self):
+        return Variable(self.currentToken)
+
+
     def run(self):
         while self.currentToken.tag != "TT_END_OF_FILE":
             if self.currentToken.tag == "TT_DELIMITER":
@@ -354,6 +400,10 @@ class Parser:
                 self.trees.append(self.parseAndOrInfiniteOperation())
             elif self.currentToken.tag == "TT_INFINITY_CONCAT":
                 self.trees.append(self.parseSmoosh())
+            elif self.currentToken.tag == "TT_VAR_DECLARATION":
+                self.trees.append(self.parseVariableDeclaration())
+            elif self.currentToken.tag == "TT_IDENTIFIER":
+                self.trees.append(self.parseVariable())
             else:
                 print("ERROR: cannot parse %s" % repr(self.currentToken))
                 return

@@ -7,10 +7,10 @@ from lolcode_parser import *
 
 pp = pprint.PrettyPrinter(indent=4)
 
-
 class Interpreter:
     def __init__(self, parser):
         self.parser = parser
+        self.symbolTable = dict()
 
     def __call__(self):
         return self.visit(self.parser.trees[0])
@@ -79,6 +79,36 @@ class Interpreter:
             else:
                 return self.visit(node.value) and self.visit_InfOp(node.child)
 
+    def visit_VariableDeclaration(self, node):
+        val = None
+        varType = "NOOB"
+
+        if node.varValue:
+            val = self.visit(node.varValue)
+
+            if type(val) == int:
+                varType = "NUMBR"
+            elif type(val) == float:
+                varType = "NUMBAR"
+            elif type(val) == bool:
+                varType = "TROOF"
+            elif type(val) == str:
+                varType = "YARN"
+
+        if self.visit(node.varObj):
+            print("ERROR: variable already exists")
+            return
+
+        self.symbolTable[node.varObj.name] = {"varValue": val, "varType": varType}
+
+        return self.symbolTable[node.varObj.name]
+
+    def visit_Variable(self, node):
+        if node.name not in self.symbolTable.keys():
+            return None
+
+        return self.symbolTable[node.token.name]
+
 
     def visit_Num(self, node):
         if node.token.tag == "TT_NUMBR":
@@ -94,9 +124,6 @@ class Interpreter:
 
     def visit_String(self, node):
         return str(node.value).replace("\"","")
-
-
-symbolTable = dict()
 
 tokens = lexer(readSourceCode("LOLCODE_example/bestcase.lol"))
 # pp.pprint(tokens)
