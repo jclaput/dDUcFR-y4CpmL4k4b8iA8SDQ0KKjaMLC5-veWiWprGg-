@@ -5,6 +5,7 @@ BOOLEAN_BINARY_OPERATIONS = ("TT_AND", "TT_OR", "TT_XOR")
 COMPARISON_OPERATIONS = ("TT_EQUAL", "TT_NOT_EQUAL")
 INFINITE_ARITY_OPERATIONS = ("TT_INFINITY_OR", "TT_INFINITY_AND")
 
+
 class Parser:
     def __init__(self, tokens):
         self.tokens = tokens
@@ -30,7 +31,6 @@ class Parser:
         # point to the next token
         self.advance()
 
-
         if self.currentToken.tag in ("TT_NUMBR, TT_NUMBAR"):
             left = Num(self.currentToken)
         elif self.currentToken.tag in ARITHMETIC_BINARY_OPERATIONS:
@@ -42,19 +42,12 @@ class Parser:
         # point to the next token
         self.advance()
 
-
-
-
         if self.currentToken.tag != "TT_MULT_ARITY_CONJUNCTOR":
             print("ERROR: Expected AN")
             return
 
-
-
         # point to the next token
         self.advance()
-
-
 
         if self.currentToken.tag in ("TT_NUMBR, TT_NUMBAR"):
             right = Num(self.currentToken)
@@ -81,7 +74,7 @@ class Parser:
         elif self.currentToken.tag in BOOLEAN_BINARY_OPERATIONS:
             left = self.parseBooleanBinaryOperation()
         elif self.currentToken.tag == "TT_NOT":
-            left = self.parseNotUnaryOperation() # check if this will work
+            left = self.parseNotUnaryOperation()  # check if this will work
         else:
             print("ERROR: Expected an boolean expression")
             return
@@ -101,7 +94,7 @@ class Parser:
         elif self.currentToken.tag in BOOLEAN_BINARY_OPERATIONS:
             right = self.parseBooleanBinaryOperation()
         elif self.currentToken.tag == "TT_NOT":
-            right = self.parseNotUnaryOperation() # check if this will work
+            right = self.parseNotUnaryOperation()  # check if this will work
         else:
             print("ERROR: Expected an boolean expression")
             return
@@ -161,8 +154,9 @@ class Parser:
 
         return BinOp(left, node, right)
 
-    def parseSmoosh(self):
-        # <concatenation> ::= SMOOSH <expression> AN <mult_expression> | SMOOSH <expression> AN <mult_expression> MKAY
+    def parseAndOrInfiniteOperation(self):
+        # <all_of> ::= ALL OF <expression> AN <mult_expression> MKAY
+        # <any_of> ::= ANY OF <expression> AN <mult_expression> MKAY
 
         node = self.currentToken
         result = InfOp(node, None)
@@ -170,16 +164,9 @@ class Parser:
 
         self.advance()
 
-
         while True:
-            if self.currentToken.tag in ("TT_NUMBR, TT_NUMBAR"):
-                currentChild.value = Num(self.currentToken)
-            elif self.currentToken.tag == "TT_TROOF":
+            if self.currentToken.tag == "TT_TROOF":
                 currentChild.value = Bool(self.currentToken)
-            elif self.currentToken.tag == "TT_YARN":
-                currentChild.value = String(self.currentToken)
-            elif self.currentToken.tag in ARITHMETIC_BINARY_OPERATIONS:
-                currentChild.value = self.parseArithmeticBinaryOperation()
             elif self.currentToken.tag in BOOLEAN_BINARY_OPERATIONS:
                 currentChild.value = self.parseBooleanBinaryOperation()
             elif self.currentToken.tag in COMPARISON_OPERATIONS:
@@ -207,6 +194,92 @@ class Parser:
 
         return result
 
+    def parseSmoosh(self):
+        # <concatenation> ::=
+        #   SMOOSH <expression> AN <mult_expression> | SMOOSH <expression> AN <mult_expression> MKAY |
+        #   SMOOSH <expression> | SMOOSH <expression> MKAY
+
+        node = self.currentToken
+        result = InfOp(node, None)
+        currentChild = result
+
+        self.advance()
+
+        if self.currentToken.tag in ("TT_NUMBR, TT_NUMBAR"):
+            currentChild.value = Num(self.currentToken)
+        elif self.currentToken.tag == "TT_TROOF":
+            currentChild.value = Bool(self.currentToken)
+        elif self.currentToken.tag == "TT_YARN":
+            currentChild.value = String(self.currentToken)
+        elif self.currentToken.tag in ARITHMETIC_BINARY_OPERATIONS:
+            currentChild.value = self.parseArithmeticBinaryOperation()
+        elif self.currentToken.tag in BOOLEAN_BINARY_OPERATIONS:
+            currentChild.value = self.parseBooleanBinaryOperation()
+        elif self.currentToken.tag in COMPARISON_OPERATIONS:
+            currentChild.value = self.parseComparisonBinaryOperation()
+        elif self.currentToken.tag == "TT_NOT":
+            currentChild.value = self.parseNotUnaryOperation()
+
+        currentChild.child = InfOp(node, None)
+        currentChild = currentChild.child
+
+        self.advance()
+
+        if self.currentToken.tag != "TT_MULT_ARITY_CONJUNCTOR":
+            print("ERROR: Expected AN")
+            return
+
+        self.advance()
+
+        if self.currentToken.tag in ("TT_NUMBR, TT_NUMBAR"):
+            currentChild.value = Num(self.currentToken)
+        elif self.currentToken.tag == "TT_TROOF":
+            currentChild.value = Bool(self.currentToken)
+        elif self.currentToken.tag == "TT_YARN":
+            currentChild.value = String(self.currentToken)
+        elif self.currentToken.tag in ARITHMETIC_BINARY_OPERATIONS:
+            currentChild.value = self.parseArithmeticBinaryOperation()
+        elif self.currentToken.tag in BOOLEAN_BINARY_OPERATIONS:
+            currentChild.value = self.parseBooleanBinaryOperation()
+        elif self.currentToken.tag in COMPARISON_OPERATIONS:
+            currentChild.value = self.parseComparisonBinaryOperation()
+        elif self.currentToken.tag == "TT_NOT":
+            currentChild.value = self.parseNotUnaryOperation()
+
+        self.advance()
+
+        while self.currentToken.tag not in ("TT_DELIMITER, TT_MULT_ARITY_ENDER"):
+            if self.currentToken.tag != "TT_MULT_ARITY_CONJUNCTOR":
+                print("ERROR: Expected AN")
+                return
+
+            self.advance()
+
+            currentChild.child = InfOp(node, None)
+            currentChild = currentChild.child
+
+            if self.currentToken.tag in ("TT_NUMBR, TT_NUMBAR"):
+                currentChild.value = Num(self.currentToken)
+            elif self.currentToken.tag == "TT_TROOF":
+                currentChild.value = Bool(self.currentToken)
+            elif self.currentToken.tag == "TT_YARN":
+                currentChild.value = String(self.currentToken)
+            elif self.currentToken.tag in ARITHMETIC_BINARY_OPERATIONS:
+                currentChild.value = self.parseArithmeticBinaryOperation()
+            elif self.currentToken.tag in BOOLEAN_BINARY_OPERATIONS:
+                currentChild.value = self.parseBooleanBinaryOperation()
+            elif self.currentToken.tag in COMPARISON_OPERATIONS:
+                currentChild.value = self.parseComparisonBinaryOperation()
+            elif self.currentToken.tag == "TT_NOT":
+                currentChild.value = self.parseNotUnaryOperation()
+
+            self.advance()
+
+        if not currentChild.value:
+            print("ERROR: Expected an valid expression")
+            return
+
+        return result
 
     def parseNotUnaryOperation(self):
         # <not> ::= NOT <expression>
