@@ -68,6 +68,17 @@ class Interpreter:
                 return str(self.visit(node.value))
             else:
                 return str(self.visit(node.value)) + self.visit_InfOp(node.child)
+        elif node.token.tag == "TT_INFINITY_OR":
+            if not node.child:
+                return self.visit(node.value)
+            else:
+                return self.visit(node.value) or self.visit_InfOp(node.child)
+        elif node.token.tag == "TT_INFINITY_AND":
+            if not node.child:
+                return self.visit(node.value)
+            else:
+                return self.visit(node.value) and self.visit_InfOp(node.child)
+
 
     def visit_Num(self, node):
         if node.token.tag == "TT_NUMBR":
@@ -93,7 +104,10 @@ tokens = lexer(readSourceCode("LOLCODE_example/bestcase.lol"))
 myParser = Parser(tokens)
 myParser.run()
 
-myInterpreter = Interpreter(myParser)
-# print(tokens)
+if myParser:
+    myInterpreter = Interpreter(myParser)
+    # print(tokens)
 
-print(myInterpreter())
+    # print(myParser.trees)
+
+    print(myInterpreter())

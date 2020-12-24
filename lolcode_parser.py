@@ -162,9 +162,53 @@ class Parser:
         result = InfOp(node, None)
         currentChild = result
 
+        node = self.currentToken
+        result = InfOp(node, None)
+        currentChild = result
+
         self.advance()
 
-        while True:
+        if self.currentToken.tag == "TT_TROOF":
+            currentChild.value = Bool(self.currentToken)
+        elif self.currentToken.tag in BOOLEAN_BINARY_OPERATIONS:
+            currentChild.value = self.parseBooleanBinaryOperation()
+        elif self.currentToken.tag in COMPARISON_OPERATIONS:
+            currentChild.value = self.parseComparisonBinaryOperation()
+        elif self.currentToken.tag == "TT_NOT":
+            currentChild.value = self.parseNotUnaryOperation()
+
+        currentChild.child = InfOp(node, None)
+        currentChild = currentChild.child
+
+        self.advance()
+
+        if self.currentToken.tag != "TT_MULT_ARITY_CONJUNCTOR":
+            print("ERROR: Expected AN")
+            return
+
+        self.advance()
+
+        if self.currentToken.tag == "TT_TROOF":
+            currentChild.value = Bool(self.currentToken)
+        elif self.currentToken.tag in BOOLEAN_BINARY_OPERATIONS:
+            currentChild.value = self.parseBooleanBinaryOperation()
+        elif self.currentToken.tag in COMPARISON_OPERATIONS:
+            currentChild.value = self.parseComparisonBinaryOperation()
+        elif self.currentToken.tag == "TT_NOT":
+            currentChild.value = self.parseNotUnaryOperation()
+
+        self.advance()
+
+        while self.currentToken.tag not in ("TT_DELIMITER, TT_MULT_ARITY_ENDER"):
+            if self.currentToken.tag != "TT_MULT_ARITY_CONJUNCTOR":
+                print("ERROR: Expected AN")
+                return
+
+            self.advance()
+
+            currentChild.child = InfOp(node, None)
+            currentChild = currentChild.child
+
             if self.currentToken.tag == "TT_TROOF":
                 currentChild.value = Bool(self.currentToken)
             elif self.currentToken.tag in BOOLEAN_BINARY_OPERATIONS:
@@ -176,21 +220,15 @@ class Parser:
 
             self.advance()
 
-            if self.currentToken.tag in ("TT_DELIMITER, TT_MULT_ARITY_ENDER"):
-                break
-
-            if self.currentToken.tag != "TT_MULT_ARITY_CONJUNCTOR":
-                print("ERROR: Expected AN")
-                return
-
-            currentChild.child = InfOp(node, None)
-            currentChild = currentChild.child
-
-            self.advance()
+        if self.currentToken.tag == "TT_DELIMITER":
+            print("ERROR: Expected MKAY")
+            return
 
         if not currentChild.value:
             print("ERROR: Expected an valid expression")
             return
+
+
 
         return result
 
@@ -305,15 +343,17 @@ class Parser:
                 self.advance()
                 continue
             if self.currentToken.tag in ARITHMETIC_BINARY_OPERATIONS:
-                self.trees.insert(0, self.parseArithmeticBinaryOperation())
+                self.trees.append(self.parseArithmeticBinaryOperation())
             elif self.currentToken.tag in BOOLEAN_BINARY_OPERATIONS:
-                self.trees.insert(0, self.parseBooleanBinaryOperation())
+                self.trees.append(self.parseBooleanBinaryOperation())
             elif self.currentToken.tag in COMPARISON_OPERATIONS:
-                self.trees.insert(0, self.parseComparisonBinaryOperation())
+                self.trees.append(self.parseComparisonBinaryOperation())
             elif self.currentToken.tag == "TT_NOT":
-                self.trees.insert(0, self.parseNotUnaryOperation())
+                self.trees.append(self.parseNotUnaryOperation())
+            elif self.currentToken.tag in INFINITE_ARITY_OPERATIONS:
+                self.trees.append(self.parseAndOrInfiniteOperation())
             elif self.currentToken.tag == "TT_INFINITY_CONCAT":
-                self.trees.insert(0, self.parseSmoosh())
+                self.trees.append(self.parseSmoosh())
             else:
                 print("ERROR: cannot parse %s" % repr(self.currentToken))
                 return
