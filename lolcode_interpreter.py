@@ -27,20 +27,28 @@ class Interpreter:
         val = None
         varType = "NOOB"
 
-        if node.varValue:
-            val = self.visit(node.varValue)
-
-        if self.visit(node.varObj):
-            print("ERROR: variable already exists")
+        if node.varObj.name == "IT":
+            print("ERROR: cannot use implicit variable IT")
             return
 
-        self.symbolTable[node.varObj.name] = {"varValue": val, "varType": self.getVariableDataType(val)}
+        if self.isExistingVariable(node.varObj.name):
+            print("ERROR: variable already exists")
+            return
+        
+        if node.varValue: #Variable token has a value, meaning its data type is not NOOB
+            val = self.visit(node.varValue)
+
+            if val:
+                varType = self.getVariableDataType(val)
+
+        self.symbolTable[node.varObj.name] = {"varValue": val, "varType": varType}
 
         return self.symbolTable[node.varObj.name]
 
     def visit_Variable(self, node):
-        if node.name not in self.symbolTable.keys():
-            return None
+        if not self.isExistingVariable(node.name):
+            print("ERROR: variable does not exist")
+            return
 
         return self.symbolTable[node.name]["varValue"]
 
@@ -55,6 +63,11 @@ class Interpreter:
             varType = "YARN"
 
         return varType
+    
+    def isExistingVariable(self, name):
+        if name in self.symbolTable:
+            return True
+        return False
 
     def visit_UnOp(self, node):
         if node.token.tag == "TT_NOT":
@@ -63,42 +76,100 @@ class Interpreter:
     def visit_BinOp(self, node):
         # Arithmetic Binary Operations
         if node.token.tag == "TT_ADD":
-            return self.visit(node.left) + self.visit(node.right)
+            try:
+                return self.visit(node.left) + self.visit(node.right)
+            except TypeError:
+                print("ERROR: variable datatype")
+            return
         if node.token.tag == "TT_SUB":
-            return self.visit(node.left) - self.visit(node.right)
+            try:
+                return self.visit(node.left) - self.visit(node.right)
+            except TypeError:
+                print("ERROR: variable datatype")
+            return
         if node.token.tag == "TT_MUL":
-            return self.visit(node.left) * self.visit(node.right)
+            try:
+                return self.visit(node.left) * self.visit(node.right)
+            except TypeError:
+                print("ERROR: variable datatype")
+            return
         if node.token.tag == "TT_DIV":
-            return self.visit(node.left) / self.visit(node.right)
+            try:
+                return self.visit(node.left) / self.visit(node.right)
+            except TypeError:
+                print("ERROR: variable datatype")
+            except ZeroDivisionError:
+                print("ERROR: division by zero")
+            
+            return
         if node.token.tag == "TT_MOD":
-            return self.visit(node.left) % self.visit(node.right)
+            try:
+                return self.visit(node.left) % self.visit(node.right)
+            except TypeError:
+                print("ERROR: variable datatype")
+            
+            return
         if node.token.tag == "TT_MAX":
-            return max(self.visit(node.left), self.visit(node.right))
+            try:
+                return max(self.visit(node.left), self.visit(node.right))
+            except TypeError:
+                print("ERROR: variable datatype")
+            
+            return
+
         if node.token.tag == "TT_MIN":
-            return min(self.visit(node.left), self.visit(node.right))
+            try:
+                return min(self.visit(node.left), self.visit(node.right))
+            except TypeError:
+                print("ERROR: variable datatype")
 
         # Boolean Binary Operations
         if node.token.tag == "TT_AND":
-            return self.visit(node.left) and self.visit(node.right)
+            try:
+                return self.visit(node.left) and self.visit(node.right)
+            except TypeError:
+                print("ERROR: variable datatype")
+            return
         if node.token.tag == "TT_XOR":
-            return self.visit(node.left) ^ self.visit(node.right)
+            try:
+                return self.visit(node.left) ^ self.visit(node.right)
+            except TypeError:
+                print("ERROR: variable datatype")
+            return
         if node.token.tag == "TT_OR":
-            return self.visit(node.left) or self.visit(node.right)
+            try:
+                return self.visit(node.left) or self.visit(node.right)
+            except TypeError:
+                print("ERROR: variable datatype")
+            return
 
         # Comparison Binary Operations
         if node.token.tag == "TT_EQUAL":
-            return self.visit(node.left) == self.visit(node.right)
+            try:
+                return self.visit(node.left) == self.visit(node.right)
+            except TypeError:
+                print("ERROR: variable datatype")
+            return
         if node.token.tag == "TT_NOT_EQUAL":
-            return self.visit(node.left) != self.visit(node.right)
+            try:
+                return self.visit(node.left) != self.visit(node.right)
+            except TypeError:
+                print("ERROR: variable datatype")
+            return
 
         # Variable Assignment Statement
         if node.token.tag == "TT_ASSIGN_TO_VAR":
-            if not self.visit(node.left):
-                print("ERROR: uninitialized variable")
+            if not self.isExistingVariable(node.left.name):
+                print("ERROR: variable does not exist")
                 return
 
             val = self.visit(node.right)
-            self.symbolTable[node.left.name] = {"varValue" : val, "varType" : self.getVariableDataType(val)}
+            varType = "NOOB"
+
+            if val:
+                varType = self.getVariableDataType(val)
+
+            self.symbolTable[node.left.name] = {"varValue" : val, "varType" : varType}
             return self.symbolTable[node.left.name]
 
     def visit_InfOp(self, node):

@@ -73,7 +73,9 @@ class Parser:
         elif self.currentToken.tag in BOOLEAN_BINARY_OPERATIONS:
             left = self.parseBooleanBinaryOperation()
         elif self.currentToken.tag == "TT_NOT":
-            left = self.parseNotUnaryOperation()  # check if this will work
+            left = self.parseNotUnaryOperation()
+        elif self.currentToken.tag == "TT_IDENTIFIER":
+            left = Variable(self.currentToken) 
         else:
             print("ERROR: Expected an boolean expression")
             return
@@ -93,7 +95,9 @@ class Parser:
         elif self.currentToken.tag in BOOLEAN_BINARY_OPERATIONS:
             right = self.parseBooleanBinaryOperation()
         elif self.currentToken.tag == "TT_NOT":
-            right = self.parseNotUnaryOperation()  # check if this will work
+            right = self.parseNotUnaryOperation()
+        elif self.currentToken.tag == "TT_IDENTIFIER":
+            right = Variable(self.currentToken) 
         else:
             print("ERROR: Expected an boolean expression")
             return
@@ -121,6 +125,8 @@ class Parser:
             left = self.parseComparisonBinaryOperation()
         elif self.currentToken.tag == "TT_NOT":
             left = self.parseNotUnaryOperation()
+        elif self.currentToken.tag == "TT_IDENTIFIER":
+            left = Variable(self.currentToken) 
         else:
             print("ERROR: Expected a valid expression")
             return
@@ -147,6 +153,8 @@ class Parser:
             right = self.parseComparisonBinaryOperation()
         elif self.currentToken.tag == "TT_NOT":
             right = self.parseNotUnaryOperation()
+        elif self.currentToken.tag == "TT_IDENTIFIER":
+            right = Variable(self.currentToken) 
         else:
             print("ERROR: Expected a valid expression")
             return
@@ -175,6 +183,9 @@ class Parser:
             currentChild.value = self.parseComparisonBinaryOperation()
         elif self.currentToken.tag == "TT_NOT":
             currentChild.value = self.parseNotUnaryOperation()
+        elif self.currentToken.tag == "TT_IDENTIFIER":
+            currentChild.value = Variable(self.currentToken) 
+
 
         currentChild.child = InfOp(node, None)
         currentChild = currentChild.child
@@ -195,6 +206,9 @@ class Parser:
             currentChild.value = self.parseComparisonBinaryOperation()
         elif self.currentToken.tag == "TT_NOT":
             currentChild.value = self.parseNotUnaryOperation()
+        elif self.currentToken.tag == "TT_IDENTIFIER":
+            currentChild.value = Variable(self.currentToken) 
+
 
         self.advance()
 
@@ -216,6 +230,9 @@ class Parser:
                 currentChild.value = self.parseComparisonBinaryOperation()
             elif self.currentToken.tag == "TT_NOT":
                 currentChild.value = self.parseNotUnaryOperation()
+            elif self.currentToken.tag == "TT_IDENTIFIER":
+                currentChild.value = Variable(self.currentToken) 
+
 
             self.advance()
 
@@ -254,6 +271,9 @@ class Parser:
             currentChild.value = self.parseComparisonBinaryOperation()
         elif self.currentToken.tag == "TT_NOT":
             currentChild.value = self.parseNotUnaryOperation()
+        elif self.currentToken.tag == "TT_IDENTIFIER":
+            currentChild.value = Variable(self.currentToken) 
+
 
         currentChild.child = InfOp(node, None)
         currentChild = currentChild.child
@@ -280,6 +300,8 @@ class Parser:
             currentChild.value = self.parseComparisonBinaryOperation()
         elif self.currentToken.tag == "TT_NOT":
             currentChild.value = self.parseNotUnaryOperation()
+        elif self.currentToken.tag == "TT_IDENTIFIER":
+            currentChild.value = Variable(self.currentToken) 
 
         self.advance()
 
@@ -307,6 +329,8 @@ class Parser:
                 currentChild.value = self.parseComparisonBinaryOperation()
             elif self.currentToken.tag == "TT_NOT":
                 currentChild.value = self.parseNotUnaryOperation()
+            elif self.currentToken.tag == "TT_IDENTIFIER":
+                currentChild.value = Variable(self.currentToken) 
 
             self.advance()
 
@@ -328,6 +352,8 @@ class Parser:
             operand = self.parseBooleanBinaryOperation()
         elif self.currentToken.tag == "TT_NOT":
             operand = self.parseNotUnaryOperation()
+        elif self.currentToken.tag == "TT_IDENTIFIER":
+            operand = Variable(self.currentToken) 
         else:
             print("ERROR: Expected an boolean expression")
             return
@@ -372,6 +398,8 @@ class Parser:
                 varValue = self.parseComparisonBinaryOperation()
             elif self.currentToken.tag == "TT_NOT":
                 varValue = self.parseNotUnaryOperation()
+            elif self.currentToken.tag == "TT_IDENTIFIER":
+                varValue = Variable(self.currentToken)
             else:
                 print("ERROR: expected a valid expression")
                 return
@@ -409,6 +437,8 @@ class Parser:
             right = self.parseComparisonBinaryOperation()
         elif self.currentToken.tag == "TT_NOT":
             right = self.parseNotUnaryOperation()
+        elif self.currentToken.tag == "TT_IDENTIFIER":
+            right = Variable(self.currentToken)
         else:
             print("ERROR: expected a valid expression")
             return

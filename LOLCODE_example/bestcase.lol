@@ -1,4 +1,5 @@
 HAI
-  I HAS A var7 ITZ DIFF OF 1 AN 2
-  SUM OF var7 AN var7
+  I HAS A var7 ITZ DIFF OF 1.0 AN 2
+  I HAS A var8 ITZ "HELLO WORLD"
+  I HAS A var9 ITZ SUM OF var7 AN var8
 KTHXBYE
