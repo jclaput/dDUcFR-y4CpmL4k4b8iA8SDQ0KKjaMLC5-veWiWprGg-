@@ -380,8 +380,41 @@ class Parser:
         return VariableDeclaration(node, varObj, varValue)
 
     def parseVariable(self):
-        return Variable(self.currentToken)
+        # <assignment> ::= variadent R <expression>
 
+        left = Variable(self.currentToken)
+        self.advance()
+
+        if self.currentToken.tag == "TT_DELIMITER":
+            return left
+
+        if self.currentToken.tag != "TT_ASSIGN_TO_VAR":
+            print("ERROR: expected R")
+            return
+
+        node = self.currentToken
+
+        self.advance()
+
+        if self.currentToken.tag in ("TT_NUMBR, TT_NUMBAR"):
+            right = Num(self.currentToken)
+        elif self.currentToken.tag == "TT_TROOF":
+            right = Bool(self.currentToken)
+        elif self.currentToken.tag == "TT_YARN":
+            right = String(self.currentToken)
+        elif self.currentToken.tag in ARITHMETIC_BINARY_OPERATIONS:
+            right = self.parseArithmeticBinaryOperation()
+        elif self.currentToken.tag in BOOLEAN_BINARY_OPERATIONS:
+            right = self.parseBooleanBinaryOperation()
+        elif self.currentToken.tag in COMPARISON_OPERATIONS:
+            right = self.parseComparisonBinaryOperation()
+        elif self.currentToken.tag == "TT_NOT":
+            right = self.parseNotUnaryOperation()
+        else:
+            print("ERROR: expected a valid expression")
+            return
+
+        return BinOp(left, node, right)
 
     def run(self):
         while self.currentToken.tag != "TT_END_OF_FILE":

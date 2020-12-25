@@ -13,7 +13,9 @@ class Interpreter:
         self.symbolTable = dict()
 
     def __call__(self):
-        return self.visit(self.parser.trees[0])
+        for t in self.parser.trees:
+            print(self.visit(t))
+        # return self.visit(self.parser.trees[0])
 
     def printTree(self, node):
         if hasattr(node, 'left'):
@@ -62,6 +64,16 @@ class Interpreter:
         if node.token.tag == "TT_NOT_EQUAL":
             return self.visit(node.left) != self.visit(node.right)
 
+        # Variable Assignment Statement
+        if node.token.tag == "TT_ASSIGN_TO_VAR":
+            if not self.visit(node.left):
+                print("ERROR: uninitialized variable")
+                return
+
+            val = self.visit(node.right)
+            self.symbolTable[node.left.name] = {"varValue" : val, "varType" : self.getVariableDataType(val)}
+            return self.symbolTable[node.left.name]
+
     def visit_InfOp(self, node):
         if node.token.tag == "TT_INFINITY_CONCAT":
             if not node.child:
@@ -86,20 +98,11 @@ class Interpreter:
         if node.varValue:
             val = self.visit(node.varValue)
 
-            if type(val) == int:
-                varType = "NUMBR"
-            elif type(val) == float:
-                varType = "NUMBAR"
-            elif type(val) == bool:
-                varType = "TROOF"
-            elif type(val) == str:
-                varType = "YARN"
-
         if self.visit(node.varObj):
             print("ERROR: variable already exists")
             return
 
-        self.symbolTable[node.varObj.name] = {"varValue": val, "varType": varType}
+        self.symbolTable[node.varObj.name] = {"varValue": val, "varType": self.getVariableDataType(val)}
 
         return self.symbolTable[node.varObj.name]
 
@@ -107,7 +110,19 @@ class Interpreter:
         if node.name not in self.symbolTable.keys():
             return None
 
-        return self.symbolTable[node.token.name]
+        return self.symbolTable[node.name]
+
+    def getVariableDataType(self, val):
+        if type(val) == int:
+            varType = "NUMBR"
+        elif type(val) == float:
+            varType = "NUMBAR"
+        elif type(val) == bool:
+            varType = "TROOF"
+        elif type(val) == str:
+            varType = "YARN"
+
+        return varType
 
 
     def visit_Num(self, node):
@@ -137,4 +152,4 @@ if myParser:
 
     # print(myParser.trees)
 
-    print(myInterpreter())
+    myInterpreter()
