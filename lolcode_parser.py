@@ -1,10 +1,5 @@
+from constants import *
 from ast import *
-
-ARITHMETIC_BINARY_OPERATIONS = ("TT_ADD", "TT_SUB", "TT_MUL", "TT_DIV", "TT_MOD", "TT_MAX", "TT_MIN")
-BOOLEAN_BINARY_OPERATIONS = ("TT_AND", "TT_OR", "TT_XOR")
-COMPARISON_OPERATIONS = ("TT_EQUAL", "TT_NOT_EQUAL")
-INFINITE_ARITY_OPERATIONS = ("TT_INFINITY_OR", "TT_INFINITY_AND")
-
 
 class Parser:
     def __init__(self, tokens):
@@ -35,6 +30,8 @@ class Parser:
             left = Num(self.currentToken)
         elif self.currentToken.tag in ARITHMETIC_BINARY_OPERATIONS:
             left = self.parseArithmeticBinaryOperation()
+        elif self.currentToken.tag == "TT_IDENTIFIER":
+            left = Variable(self.currentToken)
         else:
             print("ERROR: Expected an arithmetic expression")
             return
@@ -53,6 +50,8 @@ class Parser:
             right = Num(self.currentToken)
         elif self.currentToken.tag in ARITHMETIC_BINARY_OPERATIONS:
             right = self.parseArithmeticBinaryOperation()
+        elif self.currentToken.tag == "TT_IDENTIFIER":
+            right = Variable(self.currentToken)
         else:
             print("ERROR: Expected an arithmetic expression")
             return

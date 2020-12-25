@@ -1,11 +1,6 @@
-import pprint
-import re
-
+from constants import *
 from lolcode_lexer import *
 from lolcode_parser import *
-
-
-pp = pprint.PrettyPrinter(indent=4)
 
 class Interpreter:
     def __init__(self, parser):
@@ -15,7 +10,6 @@ class Interpreter:
     def __call__(self):
         for t in self.parser.trees:
             print(self.visit(t))
-        # return self.visit(self.parser.trees[0])
 
     def printTree(self, node):
         if hasattr(node, 'left'):
@@ -28,6 +22,39 @@ class Interpreter:
         methodName = 'visit_' + type(node).__name__
         visitor = getattr(self, methodName)
         return visitor(node)
+
+    def visit_VariableDeclaration(self, node):
+        val = None
+        varType = "NOOB"
+
+        if node.varValue:
+            val = self.visit(node.varValue)
+
+        if self.visit(node.varObj):
+            print("ERROR: variable already exists")
+            return
+
+        self.symbolTable[node.varObj.name] = {"varValue": val, "varType": self.getVariableDataType(val)}
+
+        return self.symbolTable[node.varObj.name]
+
+    def visit_Variable(self, node):
+        if node.name not in self.symbolTable.keys():
+            return None
+
+        return self.symbolTable[node.name]["varValue"]
+
+    def getVariableDataType(self, val):
+        if type(val) == int:
+            varType = "NUMBR"
+        elif type(val) == float:
+            varType = "NUMBAR"
+        elif type(val) == bool:
+            varType = "TROOF"
+        elif type(val) == str:
+            varType = "YARN"
+
+        return varType
 
     def visit_UnOp(self, node):
         if node.token.tag == "TT_NOT":
@@ -90,40 +117,6 @@ class Interpreter:
                 return self.visit(node.value)
             else:
                 return self.visit(node.value) and self.visit_InfOp(node.child)
-
-    def visit_VariableDeclaration(self, node):
-        val = None
-        varType = "NOOB"
-
-        if node.varValue:
-            val = self.visit(node.varValue)
-
-        if self.visit(node.varObj):
-            print("ERROR: variable already exists")
-            return
-
-        self.symbolTable[node.varObj.name] = {"varValue": val, "varType": self.getVariableDataType(val)}
-
-        return self.symbolTable[node.varObj.name]
-
-    def visit_Variable(self, node):
-        if node.name not in self.symbolTable.keys():
-            return None
-
-        return self.symbolTable[node.name]
-
-    def getVariableDataType(self, val):
-        if type(val) == int:
-            varType = "NUMBR"
-        elif type(val) == float:
-            varType = "NUMBAR"
-        elif type(val) == bool:
-            varType = "TROOF"
-        elif type(val) == str:
-            varType = "YARN"
-
-        return varType
-
 
     def visit_Num(self, node):
         if node.token.tag == "TT_NUMBR":

@@ -1,5 +1,4 @@
 HAI
-   I HAS A var11 ITZ NOT WIN
-   var11 R "Hello World"
-
+  I HAS A var7 ITZ DIFF OF 1 AN 2
+  SUM OF var7 AN var7
 KTHXBYE
