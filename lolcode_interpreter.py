@@ -5,12 +5,14 @@ from lolcode_parser import *
 class Interpreter:
     def __init__(self, parser):
         self.parser = parser
-        self.symbolTable = dict()
+        self.symbolTable = {"IT" : {"varValue" : None, "varType" : "NOOB"}}
         self.errorOccured = False
 
     def __call__(self):
         for t in self.parser.trees:
-            print(self.visit(t))
+            result = self.visit(t)
+            if t.token.tag in EXPRESSIONS:
+                self.symbolTable["IT"] = {"varValue" : result, "varType" : self.getVariableDataType(result)}
 
     def printTree(self, node):
         if hasattr(node, 'left'):
@@ -255,3 +257,4 @@ if myParser:
     # print(myParser.trees)
 
     myInterpreter()
+    pp.pprint(myInterpreter.symbolTable)
