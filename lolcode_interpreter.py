@@ -6,6 +6,7 @@ class Interpreter:
     def __init__(self, parser):
         self.parser = parser
         self.symbolTable = dict()
+        self.errorOccured = False
 
     def __call__(self):
         for t in self.parser.trees:
@@ -77,25 +78,45 @@ class Interpreter:
         # Arithmetic Binary Operations
         if node.token.tag == "TT_ADD":
             try:
-                return self.visit(node.left) + self.visit(node.right)
+                result = self.visit(node.left) + self.visit(node.right)
+                if node.left.token.tag == "TT_NUMBAR" or node.right.token.tag == "TT_NUMBAR":
+                    result = float(result)
+                else:
+                    result = int(result)
+                return result
             except TypeError:
                 print("ERROR: variable datatype")
             return
         if node.token.tag == "TT_SUB":
             try:
-                return self.visit(node.left) - self.visit(node.right)
+                result = self.visit(node.left) - self.visit(node.right)
+                if node.left.token.tag == "TT_NUMBAR" or node.right.token.tag == "TT_NUMBAR":
+                    result = float(result)
+                else:
+                    result = int(result)
+                return result
             except TypeError:
                 print("ERROR: variable datatype")
             return
         if node.token.tag == "TT_MUL":
             try:
-                return self.visit(node.left) * self.visit(node.right)
+                result = self.visit(node.left) * self.visit(node.right)
+                if node.left.token.tag == "TT_NUMBAR" or node.right.token.tag == "TT_NUMBAR":
+                    result = float(result)
+                else:
+                    result = int(result)
+                return result
             except TypeError:
                 print("ERROR: variable datatype")
             return
         if node.token.tag == "TT_DIV":
             try:
-                return self.visit(node.left) / self.visit(node.right)
+                result = self.visit(node.left) / self.visit(node.right)
+                if node.left.token.tag == "TT_NUMBAR" or node.right.token.tag == "TT_NUMBAR":
+                    result = float(result)
+                else:
+                    result = int(result)
+                return result
             except TypeError:
                 print("ERROR: variable datatype")
             except ZeroDivisionError:
@@ -104,14 +125,24 @@ class Interpreter:
             return
         if node.token.tag == "TT_MOD":
             try:
-                return self.visit(node.left) % self.visit(node.right)
+                result = self.visit(node.left) % self.visit(node.right)
+                if node.left.token.tag == "TT_NUMBAR" or node.right.token.tag == "TT_NUMBAR":
+                    result = float(result)
+                else:
+                    result = int(result)
+                return result
             except TypeError:
                 print("ERROR: variable datatype")
             
             return
         if node.token.tag == "TT_MAX":
             try:
-                return max(self.visit(node.left), self.visit(node.right))
+                result = max(self.visit(node.left), self.visit(node.right))
+                if node.left.token.tag == "TT_NUMBAR" or node.right.token.tag == "TT_NUMBAR":
+                    result = float(result)
+                else:
+                    result = int(result)
+                return result
             except TypeError:
                 print("ERROR: variable datatype")
             
@@ -119,9 +150,16 @@ class Interpreter:
 
         if node.token.tag == "TT_MIN":
             try:
-                return min(self.visit(node.left), self.visit(node.right))
+                result = min(self.visit(node.left), self.visit(node.right))
+                if node.left.token.tag == "TT_NUMBAR" or node.right.token.tag == "TT_NUMBAR":
+                    result = float(result)
+                else:
+                    result = int(result)
+                return result
             except TypeError:
                 print("ERROR: variable datatype")
+            
+            return
 
         # Boolean Binary Operations
         if node.token.tag == "TT_AND":
