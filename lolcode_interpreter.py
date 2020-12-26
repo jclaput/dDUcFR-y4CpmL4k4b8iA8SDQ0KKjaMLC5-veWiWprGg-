@@ -11,6 +11,7 @@ class Interpreter:
     def __call__(self):
         for t in self.parser.trees:
             result = self.visit(t)
+            print(result)
             if t.token.tag in EXPRESSIONS:
                 self.symbolTable["IT"] = {"varValue" : result, "varType" : self.getVariableDataType(result)}
 
@@ -56,6 +57,8 @@ class Interpreter:
         return self.symbolTable[node.name]["varValue"]
 
     def getVariableDataType(self, val):
+        varType = "NOOB"
+
         if type(val) == int:
             varType = "NUMBR"
         elif type(val) == float:

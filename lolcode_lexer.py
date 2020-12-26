@@ -28,9 +28,8 @@ def lexemeIsEmpty(lexeme):
     return False
 
 def lexemeIsIncomplete(lexeme):
-    for w in incompleteLexeme:
-        if re.match("^\s*" + w + "\s{0,1}", lexeme):
-            return True
+    if lexeme in incompleteLexeme:
+        return True
 
     return False
 
@@ -180,7 +179,6 @@ def lexer(sourceCodeString):
             else:
                 # if not matched as a lexeme, it might be an incomplete lexeme or a variable identifier
                 # check if its an incomplete lexeme. else check if its a valid variable identifier
-
                 if lexemeIsIncomplete(currentWord):
                     TO_APPEND_FLAG = True
                 elif lexemeHasDoubleQuote(currentWord):
