@@ -33,6 +33,12 @@ class Variable(AST):
         self.token = token
         self.name = token.value
 
+class IfElseStatement(AST):
+    def __init__(self, token, trueCodeBlock, falseCodeBlock):
+        self.token = token
+        self.trueCodeBlock = trueCodeBlock
+        self.falseCodeBlock = falseCodeBlock
+
 class Num:
     def __init__(self, token):
         self.token = token

@@ -445,6 +445,45 @@ class Parser:
 
         return BinOp(left, node, right)
 
+    def parseIfElseStatement(self):
+        node = self.currentToken
+        trueCodeBlock = []
+        falseCodeBlock = None
+
+        self.advance()
+
+        if self.currentToken.tag != "TT_IF_BLOCK":
+            print("ERROR: expected YA RLY")
+            return
+        
+        while self.currentToken.tag not in ("TT_DELIMITER", "TT_ELSE_BLOCK"):
+            if self.currentToken.tag in ("TT_NUMBR, TT_NUMBAR"):
+                trueCodeBlock.append(Num(self.currentToken))
+            elif self.currentToken.tag == "TT_TROOF":
+                trueCodeBlock.append(Bool(self.currentToken))
+            elif self.currentToken.tag == "TT_YARN":
+                trueCodeBlock.append(String(self.currentToken))
+            elif self.currentToken.tag in ARITHMETIC_BINARY_OPERATIONS:
+                trueCodeBlock.append(self.parseArithmeticBinaryOperation())
+            elif self.currentToken.tag in BOOLEAN_BINARY_OPERATIONS:
+                trueCodeBlock.append(self.parseBooleanBinaryOperation())
+            elif self.currentToken.tag in COMPARISON_OPERATIONS:
+                trueCodeBlock.append(self.parseComparisonBinaryOperation())
+            elif self.currentToken.tag == "TT_NOT":
+                trueCodeBlock.append(self.parseNotUnaryOperation())
+            elif self.currentToken.tag == "TT_IDENTIFIER":
+                trueCodeBlock.append(Variable(self.currentToken))
+            else:
+                print("ERROR: expected a valid expression or statement")
+                return
+        
+            self.advance()  
+
+        
+        
+
+        
+
     def run(self):
         while self.currentToken.tag != "TT_END_OF_FILE":
             if self.currentToken.tag == "TT_DELIMITER":
