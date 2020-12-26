@@ -446,17 +446,41 @@ class Parser:
         return BinOp(left, node, right)
 
     def parseIfElseStatement(self):
+        # <if_then_statement> ::= O RLY? <linebreak> YA RLY <linebreak> <code_block> <linebreak> OIC | O RLY? <linebreak> YA RLY <linebreak> <code_block> <linebreak> <else_statement> <linebreak> OIC
         node = self.currentToken
         trueCodeBlock = []
         falseCodeBlock = None
 
         self.advance()
+        
+
+        while self.currentToken.tag == "TT_DELIMITER":
+            self.advance()
+            if self.currentToken.tag == "TT_END_OF_FILE":
+                print("ERROR: expected YA RLY")
+                return
 
         if self.currentToken.tag != "TT_IF_BLOCK":
             print("ERROR: expected YA RLY")
             return
         
-        while self.currentToken.tag not in ("TT_DELIMITER", "TT_ELSE_BLOCK"):
+        self.advance()
+
+        while self.currentToken.tag == "TT_DELIMITER":
+            self.advance()
+            if self.currentToken.tag == "TT_END_OF_FILE":
+                print("ERROR: expected a valid expression or statement")
+                return
+
+        while self.currentToken.tag not in ("TT_IF_SWITCH_END", "TT_ELSE_BLOCK"):
+            if self.currentToken.tag == "TT_DELIMITER":
+                self.advance()
+                continue
+
+            if self.currentToken.tag == "TT_END_OF_FILE":
+                print("ERROR: expected NO WAI or OIC")
+                return
+
             if self.currentToken.tag in ("TT_NUMBR, TT_NUMBAR"):
                 trueCodeBlock.append(Num(self.currentToken))
             elif self.currentToken.tag == "TT_TROOF":
@@ -472,18 +496,55 @@ class Parser:
             elif self.currentToken.tag == "TT_NOT":
                 trueCodeBlock.append(self.parseNotUnaryOperation())
             elif self.currentToken.tag == "TT_IDENTIFIER":
-                trueCodeBlock.append(Variable(self.currentToken))
+                trueCodeBlock.append(self.parseVariable())
             else:
                 print("ERROR: expected a valid expression or statement")
                 return
         
-            self.advance()  
+            self.advance()
+
+
+        if self.currentToken.tag == "TT_ELSE_BLOCK":
+            self.advance()
+            falseCodeBlock = []
+            while self.currentToken.tag != "TT_IF_SWITCH_END":
+                if self.currentToken.tag == "TT_DELIMITER":
+                    self.advance()
+                    continue
+
+                if self.currentToken.tag == "TT_END_OF_FILE":
+                    print("ERROR: expected OIC")
+                    return
+
+                if self.currentToken.tag in ("TT_NUMBR, TT_NUMBAR"):
+                    falseCodeBlock.append(Num(self.currentToken))
+                elif self.currentToken.tag == "TT_TROOF":
+                    falseCodeBlock.append(Bool(self.currentToken))
+                elif self.currentToken.tag == "TT_YARN":
+                    falseCodeBlock.append(String(self.currentToken))
+                elif self.currentToken.tag in ARITHMETIC_BINARY_OPERATIONS:
+                    falseCodeBlock.append(self.parseArithmeticBinaryOperation())
+                elif self.currentToken.tag in BOOLEAN_BINARY_OPERATIONS:
+                    falseCodeBlock.append(self.parseBooleanBinaryOperation())
+                elif self.currentToken.tag in COMPARISON_OPERATIONS:
+                    falseCodeBlock.append(self.parseComparisonBinaryOperation())
+                elif self.currentToken.tag == "TT_NOT":
+                    falseCodeBlock.append(self.parseNotUnaryOperation())
+                elif self.currentToken.tag == "TT_IDENTIFIER":
+                    falseCodeBlock.append(self.parseVariable())
+                else:
+                    print("ERROR: expected a valid expression or statement")
+                    return
+        
+                self.advance()
+            
+            if not falseCodeBlock:
+                print("ERROR: expected a valid expression or statement")
+                return
+        
+        return IfElseStatement(node, trueCodeBlock, falseCodeBlock)
 
         
-        
-
-        
-
     def run(self):
         while self.currentToken.tag != "TT_END_OF_FILE":
             if self.currentToken.tag == "TT_DELIMITER":
@@ -505,6 +566,8 @@ class Parser:
                 self.trees.append(self.parseVariableDeclaration())
             elif self.currentToken.tag == "TT_IDENTIFIER":
                 self.trees.append(self.parseVariable())
+            elif self.currentToken.tag == "TT_IF_START":
+                self.trees.append(self.parseIfElseStatement())
             else:
                 print("ERROR: cannot parse %s" % repr(self.currentToken))
                 return

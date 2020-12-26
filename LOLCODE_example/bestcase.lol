@@ -1,3 +1,14 @@
 HAI
-  DIFFRINT 1 AN 2
+  I HAS A a ITZ 12
+  I HAS A b ITZ 5
+
+  BOTH SAEM 18 AN SUM OF 12 AN b
+  O RLY?
+    YA RLY
+      b R 17
+      SUM OF b AN DIFF OF a AN 5
+    NO WAI
+      b R 18
+      DIFFRINT b AN SUM OF 12 AN b
+  OIC
 KTHXBYE

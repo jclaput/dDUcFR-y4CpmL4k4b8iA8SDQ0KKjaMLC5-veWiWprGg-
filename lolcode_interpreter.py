@@ -231,6 +231,24 @@ class Interpreter:
                 return self.visit(node.value)
             else:
                 return self.visit(node.value) and self.visit_InfOp(node.child)
+    
+    def visit_IfElseStatement(self, node):
+        whichCodeBlock = None
+        if self.symbolTable["IT"]["varValue"]:
+            whichCodeBlock = node.trueCodeBlock
+        else:
+            whichCodeBlock = node.falseCodeBlock
+        
+        if not whichCodeBlock:
+            return
+
+        for t in whichCodeBlock:
+            result = self.visit(t)
+            print(result)
+            if t.token.tag in EXPRESSIONS:
+                self.symbolTable["IT"] = {"varValue" : result, "varType" : self.getVariableDataType(result)}
+
+        return
 
     def visit_Num(self, node):
         if node.token.tag == "TT_NUMBR":
@@ -257,7 +275,7 @@ if myParser:
     myInterpreter = Interpreter(myParser)
     # print(tokens)
 
-    # print(myParser.trees)
+    # pp.pprint(myParser.trees)
 
     myInterpreter()
     pp.pprint(myInterpreter.symbolTable)
