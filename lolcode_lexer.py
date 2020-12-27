@@ -22,10 +22,12 @@ def readSourceCode(filePath):
     # source code to string then return
     return sourceCodeString
 
+
 def lexemeIsEmpty(lexeme):
     if not lexeme or lexeme.isspace():
         return True
     return False
+
 
 def lexemeIsIncomplete(lexeme):
     if lexeme in incompleteLexeme:
@@ -33,8 +35,10 @@ def lexemeIsIncomplete(lexeme):
 
     return False
 
+
 def lexemeHasDoubleQuote(lexeme):
     return (re.match("^\"[^\"]*$", lexeme))
+
 
 def getLexemeClassification(lexeme):
     if re.match(NUMBAR_LITERAL_REGEX, lexeme):
@@ -129,8 +133,11 @@ def getLexemeClassification(lexeme):
         return "OMG"
     elif re.match(OMGWTF_REGEX, lexeme):
         return "OMGWTF"
+    elif re.match(GTFO_REGEX, lexeme):
+        return "GTFO"
     else:
         return "UNKNOWN"
+
 
 def lexer(sourceCodeString):
     lineList = []
@@ -141,7 +148,6 @@ def lexer(sourceCodeString):
 
     # get list containing each line of the source code
     lineList = sourceCodeString.split("\n")
-
 
     for line in lineList:
         ENCOUNTERED_DOUBLE_QUOTE = False
@@ -163,7 +169,7 @@ def lexer(sourceCodeString):
 
             # Needs to append incomplete lexeme with the next word
             if TO_APPEND_FLAG == True:
-                    currentWord = currentWord + " " + lexeme
+                currentWord = currentWord + " " + lexeme
             else:
                 currentWord = lexeme
 
@@ -172,7 +178,8 @@ def lexer(sourceCodeString):
 
             # Valid lexeme so just add to the lexeme table
             if classification != "UNKNOWN":
-                lexemeTable.append(Token(currentWord, tokenTag[classification]))
+                lexemeTable.append(
+                    Token(currentWord, tokenTag[classification]))
                 TO_APPEND_FLAG = False
                 ENCOUNTERED_DOUBLE_QUOTE = False
                 continue

@@ -2,10 +2,11 @@ from constants import *
 from lolcode_lexer import *
 from lolcode_parser import *
 
+
 class Interpreter:
     def __init__(self, parser):
         self.parser = parser
-        self.symbolTable = {"IT" : {"varValue" : None, "varType" : "NOOB"}}
+        self.symbolTable = {"IT": {"varValue": None, "varType": "NOOB"}}
         self.errorOccured = False
 
     def __call__(self):
@@ -13,7 +14,8 @@ class Interpreter:
             result = self.visit(t)
             print(result)
             if t.token.tag in EXPRESSIONS:
-                self.symbolTable["IT"] = {"varValue" : result, "varType" : self.getVariableDataType(result)}
+                self.symbolTable["IT"] = {
+                    "varValue": result, "varType": self.getVariableDataType(result)}
 
     def printTree(self, node):
         if hasattr(node, 'left'):
@@ -38,14 +40,15 @@ class Interpreter:
         if self.isExistingVariable(node.varObj.name):
             print("ERROR: variable already exists")
             return
-        
-        if node.varValue: #Variable token has a value, meaning its data type is not NOOB
+
+        if node.varValue:  # Variable token has a value, meaning its data type is not NOOB
             val = self.visit(node.varValue)
 
             if val:
                 varType = self.getVariableDataType(val)
 
-        self.symbolTable[node.varObj.name] = {"varValue": val, "varType": varType}
+        self.symbolTable[node.varObj.name] = {
+            "varValue": val, "varType": varType}
 
         return self.symbolTable[node.varObj.name]
 
@@ -69,7 +72,7 @@ class Interpreter:
             varType = "YARN"
 
         return varType
-    
+
     def isExistingVariable(self, name):
         if name in self.symbolTable:
             return True
@@ -126,7 +129,7 @@ class Interpreter:
                 print("ERROR: variable datatype")
             except ZeroDivisionError:
                 print("ERROR: division by zero")
-            
+
             return
         if node.token.tag == "TT_MOD":
             try:
@@ -138,7 +141,7 @@ class Interpreter:
                 return result
             except TypeError:
                 print("ERROR: variable datatype")
-            
+
             return
         if node.token.tag == "TT_MAX":
             try:
@@ -150,7 +153,7 @@ class Interpreter:
                 return result
             except TypeError:
                 print("ERROR: variable datatype")
-            
+
             return
 
         if node.token.tag == "TT_MIN":
@@ -163,7 +166,7 @@ class Interpreter:
                 return result
             except TypeError:
                 print("ERROR: variable datatype")
-            
+
             return
 
         # Boolean Binary Operations
@@ -212,7 +215,8 @@ class Interpreter:
             if val:
                 varType = self.getVariableDataType(val)
 
-            self.symbolTable[node.left.name] = {"varValue" : val, "varType" : varType}
+            self.symbolTable[node.left.name] = {
+                "varValue": val, "varType": varType}
             return self.symbolTable[node.left.name]
 
     def visit_InfOp(self, node):
@@ -231,14 +235,14 @@ class Interpreter:
                 return self.visit(node.value)
             else:
                 return self.visit(node.value) and self.visit_InfOp(node.child)
-    
+
     def visit_IfElseStatement(self, node):
         whichCodeBlock = None
         if self.symbolTable["IT"]["varValue"]:
             whichCodeBlock = node.trueCodeBlock
         else:
             whichCodeBlock = node.falseCodeBlock
-        
+
         if not whichCodeBlock:
             return
 
@@ -246,9 +250,25 @@ class Interpreter:
             result = self.visit(t)
             print(result)
             if t.token.tag in EXPRESSIONS:
-                self.symbolTable["IT"] = {"varValue" : result, "varType" : self.getVariableDataType(result)}
+                self.symbolTable["IT"] = {
+                    "varValue": result, "varType": self.getVariableDataType(result)}
 
         return
+
+    def visit_SwitchCaseStatement(self, node):
+        for c in node.codeBlockList:
+            if self.symbolTable["IT"]["varValue"] == c.literalValue or c.token.tag == "TT_DEFAULT_CASE_BLOCK":
+                self.visit_SwitchCaseCodeBlock(c)
+
+    def visit_SwitchCaseCodeBlock(self, node):
+        for c in node.codeBlockUnit:
+            if c.token.tag == "TT_BREAK":
+                break
+            result = self.visit(c)
+            print(result)
+            if c.token.tag in EXPRESSIONS:
+                self.symbolTable["IT"] = {
+                    "varValue": result, "varType": self.getVariableDataType(result)}
 
     def visit_Num(self, node):
         if node.token.tag == "TT_NUMBR":
@@ -263,7 +283,8 @@ class Interpreter:
             return False
 
     def visit_String(self, node):
-        return str(node.value).replace("\"","")
+        return str(node.value).replace("\"", "")
+
 
 tokens = lexer(readSourceCode("LOLCODE_example/bestcase.lol"))
 # pp.pprint(tokens)
