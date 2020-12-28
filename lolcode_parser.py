@@ -703,7 +703,23 @@ class Parser:
 
         return Visible(node, operandList)
 
+    def handleSingleLineComment(self):
+        while self.currentToken.tag not in ("TT_DELIMITER", "TT_END_OF_FILE"):
+            self.advance()
+    
+    def handleMultiLineComment(self):
+        while self.currentToken.tag not in ("TT_MULT_COMMENT_END", "TT_END_OF_FILE"):
+            self.advance()
+        
+        if self.currentToken.tag != "TT_MULT_COMMENT_END":
+            print("ERROR: expected TLDR")
+            return
+        
+        self.advance()
 
+        if self.currentToken.tag != "TT_DELIMITER":
+            print("ERROR: expected newline")
+            return
 
     def run(self):
         while self.currentToken.tag != "TT_END_OF_FILE":
@@ -738,6 +754,10 @@ class Parser:
                 self.trees.append(Bool(self.currentToken))
             elif self.currentToken.tag in ("TT_YARN"):
                 self.trees.append(String(self.currentToken))
+            elif self.currentToken.tag == "TT_SINGLE_COMMENT":
+                self.handleSingleLineComment()
+            elif self.currentToken.tag == "TT_MULT_COMMENT_START":
+                self.handleMultiLineComment()
             else:
                 print("ERROR: cannot parse %s" % repr(self.currentToken))
                 return

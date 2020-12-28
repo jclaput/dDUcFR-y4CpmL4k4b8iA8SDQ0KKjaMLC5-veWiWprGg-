@@ -195,11 +195,8 @@ def lexer(sourceCodeString):
                     lexemeTable.append(Token(currentWord, "TT_IDENTIFIER"))
                     TO_APPEND_FLAG = False
                     ENCOUNTERED_DOUBLE_QUOTE = False
-
-                # Insert error handling here "Nothing matched"
                 else:
-                    print(currentWord + " is invalid syntax.")
-                    return
+                    lexemeTable.append(Token(currentWord, "TT_UNKNOWN"))
 
         # Append newline after finishing getting tokens per line to denote linebreak or codeblock delimiter
         lexemeTable.append(Token("\n", "TT_DELIMITER"))
