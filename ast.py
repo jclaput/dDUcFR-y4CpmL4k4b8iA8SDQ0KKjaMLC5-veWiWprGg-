@@ -63,6 +63,12 @@ class BreakStatement(AST):
         self.token = token
         self.value = token.value
 
+class Visible(AST):
+    def __init__(self, token, operandList):
+        self.token = token
+        self.value = token.value
+        self.operandList = operandList
+
 class Num:
     def __init__(self, token):
         self.token = token

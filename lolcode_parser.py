@@ -579,6 +579,10 @@ class Parser:
             else:
                 print("ERROR: expected OMG or OMGWTF")
                 return
+        
+        if not codeBlockList:
+            print("ERROR: must have atleast one OMG <literal>")
+            return
 
         return SwitchCaseStatement(node, codeBlockList)
 
@@ -651,6 +655,56 @@ class Parser:
 
         return SwitchCaseCodeBlock(node, literalValue, codeBlockUnit)
 
+    def parseVisible(self):
+        # <output> ::= VISIBLE <expression>
+        node = self.currentToken
+        operandList = []
+
+        self.advance()
+        
+        while self.currentToken.tag != "TT_DELIMITER":
+            if self.currentToken.tag == "TT_END_OF_FILE":
+                print("ERROR: expected a valid expression")
+                return
+
+            if self.currentToken.tag in ARITHMETIC_BINARY_OPERATIONS:
+                operandList.append(self.parseArithmeticBinaryOperation())
+            elif self.currentToken.tag in BOOLEAN_BINARY_OPERATIONS:
+                operandList.append(self.parseBooleanBinaryOperation())
+            elif self.currentToken.tag in COMPARISON_OPERATIONS:
+                operandList.append(self.parseComparisonBinaryOperation())
+            elif self.currentToken.tag == "TT_NOT":
+                operandList.append(self.parseNotUnaryOperation())
+            elif self.currentToken.tag in INFINITE_ARITY_OPERATIONS:
+                operandList.append(self.parseAndOrInfiniteOperation())
+            elif self.currentToken.tag == "TT_INFINITY_CONCAT":
+                operandList.append(self.parseSmoosh())
+            elif self.currentToken.tag == "TT_VAR_DECLARATION":
+                operandList.append(self.parseVariableDeclaration())
+            elif self.currentToken.tag == "TT_IDENTIFIER":
+                operandList.append(Variable(self.currentToken))
+            elif self.currentToken.tag in ("TT_NUMBR", "TT_NUMBAR"):
+                operandList.append(Num(self.currentToken))
+            elif self.currentToken.tag in ("TT_TROOF"):
+                operandList.append(Bool(self.currentToken))
+            elif self.currentToken.tag in ("TT_YARN"):
+                operandList.append(String(self.currentToken))
+            else:
+                print("ERROR: expected a valid expression")
+                return
+
+            self.advance()
+
+        if not operandList:
+            print("ERROR: expected a valid expression")
+            return
+        
+        
+
+        return Visible(node, operandList)
+
+
+
     def run(self):
         while self.currentToken.tag != "TT_END_OF_FILE":
             if self.currentToken.tag == "TT_DELIMITER":
@@ -676,6 +730,14 @@ class Parser:
                 self.trees.append(self.parseIfElseStatement())
             elif self.currentToken.tag == "TT_SWITCH_START":
                 self.trees.append(self.parseSwitchCaseStatement())
+            elif self.currentToken.tag == "TT_PRINT":
+                self.trees.append(self.parseVisible())
+            elif self.currentToken.tag in ("TT_NUMBR", "TT_NUMBAR"):
+                self.trees.append(Num(self.currentToken))
+            elif self.currentToken.tag in ("TT_TROOF"):
+                self.trees.append(Bool(self.currentToken))
+            elif self.currentToken.tag in ("TT_YARN"):
+                self.trees.append(String(self.currentToken))
             else:
                 print("ERROR: cannot parse %s" % repr(self.currentToken))
                 return

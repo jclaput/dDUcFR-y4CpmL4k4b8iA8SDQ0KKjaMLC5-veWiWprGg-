@@ -271,6 +271,12 @@ class Interpreter:
                 self.symbolTable["IT"] = {
                     "varValue": result, "varType": self.getVariableDataType(result)}
         return True
+    
+    def visit_Visible(self, node):
+        concatenated = ""
+        for o in node.operandList:
+            concatenated += str(self.visit(o))
+        print(concatenated)
 
     def visit_NoneType(self, node):
         return
@@ -304,4 +310,4 @@ if myParser:
     # pp.pprint(myParser.trees)
 
     myInterpreter()
-    pp.pprint(myInterpreter.symbolTable)
+    # pp.pprint(myInterpreter.symbolTable)
