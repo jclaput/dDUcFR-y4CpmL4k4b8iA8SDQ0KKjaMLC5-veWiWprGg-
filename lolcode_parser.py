@@ -9,6 +9,9 @@ class Parser:
         self.currentToken = self.tokens[self.pos]
         self.trees = []
 
+    def __call__(self):
+        self.run()
+
     def advance(self):
         self.pos += 1
         self.currentToken = self.tokens[self.pos]
@@ -469,7 +472,8 @@ class Parser:
         while self.currentToken.tag == "TT_DELIMITER":
             self.advance()
             if self.currentToken.tag == "TT_END_OF_FILE":
-                print(self.currentToken, "ERROR: expected a valid expression or statement")
+                print(self.currentToken,
+                      "ERROR: expected a valid expression or statement")
                 return
 
         while self.currentToken.tag not in ("TT_IF_SWITCH_END", "TT_ELSE_BLOCK"):
@@ -500,7 +504,8 @@ class Parser:
             elif self.currentToken.tag == "TT_PRINT":
                 trueCodeBlock.append(self.parseVisible())
             else:
-                print(self.currentToken, "ERROR: expected a valid expression or statement")
+                print(self.currentToken,
+                      "ERROR: expected a valid expression or statement")
                 return
 
             self.advance()
@@ -538,13 +543,15 @@ class Parser:
                 elif self.currentToken.tag == "TT_PRINT":
                     falseCodeBlock.append(self.parseVisible())
                 else:
-                    print(self.currentToken, "ERROR: expected a valid expression or statement")
+                    print(self.currentToken,
+                          "ERROR: expected a valid expression or statement")
                     return
 
                 self.advance()
 
             if not falseCodeBlock:
-                print(self.currentToken, "ERROR: expected a valid expression or statement")
+                print(self.currentToken,
+                      "ERROR: expected a valid expression or statement")
                 return
 
         return IfElseStatement(node, trueCodeBlock, falseCodeBlock)
@@ -573,7 +580,8 @@ class Parser:
             if self.currentToken.tag in ("TT_SWITCH_BLOCK", "TT_DEFAULT_CASE_BLOCK"):
                 if self.currentToken.tag == "TT_DEFAULT_CASE_BLOCK":
                     if hasDefaultCase:
-                        print(self.currentToken, "ERROR: cannot have multiple default cases")
+                        print(self.currentToken,
+                              "ERROR: cannot have multiple default cases")
                         return
 
                     hasDefaultCase = True
@@ -587,7 +595,7 @@ class Parser:
             else:
                 print(self.currentToken, "ERROR: expected OMG or OMGWTF")
                 return
-        
+
         if not codeBlockList:
             print(self.currentToken, "ERROR: must have atleast one OMG <literal>")
             return
@@ -603,7 +611,6 @@ class Parser:
         literalValue = None
         codeBlockUnit = []
         self.advance()
-
 
         if node.tag == "TT_SWITCH_BLOCK" and self.currentToken.tag not in DATA_TYPES:
             print(self.currentToken, "ERROR: expected a literal")
@@ -621,7 +628,8 @@ class Parser:
         while self.currentToken.tag == "TT_DELIMITER":
             self.advance()
             if self.currentToken.tag == "TT_END_OF_FILE":
-                print(self.currentToken, "ERROR: expected a valid statement or expression")
+                print(self.currentToken,
+                      "ERROR: expected a valid statement or expression")
                 return
 
         while self.currentToken.tag not in ("TT_SWITCH_BLOCK", "TT_DEFAULT_CASE_BLOCK", "TT_IF_SWITCH_END"):
@@ -630,7 +638,8 @@ class Parser:
                 continue
 
             if self.currentToken.tag == "TT_END_OF_FILE":
-                print(self.currentToken, "ERROR: expected a valid statement or expression")
+                print(self.currentToken,
+                      "ERROR: expected a valid statement or expression")
                 return
 
             if self.currentToken.tag in ("TT_NUMBR, TT_NUMBAR"):
@@ -654,13 +663,15 @@ class Parser:
             elif self.currentToken.tag == "TT_BREAK":
                 codeBlockUnit.append(BreakStatement(self.currentToken))
             else:
-                print(self.currentToken, "ERROR: expected a valid statement or expression")
+                print(self.currentToken,
+                      "ERROR: expected a valid statement or expression")
                 return
 
             self.advance()
 
         if not codeBlockUnit:
-            print(self.currentToken, "ERROR: expected a valid statement or expression")
+            print(self.currentToken,
+                  "ERROR: expected a valid statement or expression")
             return
 
         return SwitchCaseCodeBlock(node, literalValue, codeBlockUnit)
@@ -671,12 +682,12 @@ class Parser:
         operandList = []
 
         self.advance()
-        
+
         while self.currentToken.tag != "TT_DELIMITER":
             if self.currentToken.tag == "TT_END_OF_FILE":
                 print(self.currentToken, "ERROR: expected a valid expression")
                 return
-            
+
             if self.currentToken.tag == "TT_SINGLE_COMMENT":
                 self.handleSingleLineComment()
                 break
@@ -712,23 +723,21 @@ class Parser:
         if not operandList:
             print(self.currentToken, "ERROR: expected a valid expression")
             return
-        
-        
 
         return Visible(node, operandList)
 
     def handleSingleLineComment(self):
         while self.currentToken.tag not in ("TT_DELIMITER", "TT_END_OF_FILE"):
             self.advance()
-    
+
     def handleMultiLineComment(self):
         while self.currentToken.tag not in ("TT_MULT_COMMENT_END", "TT_END_OF_FILE"):
             self.advance()
-        
+
         if self.currentToken.tag != "TT_MULT_COMMENT_END":
             print(self.currentToken, "ERROR: expected TLDR")
             return
-        
+
         self.advance()
 
         if self.currentToken.tag != "TT_DELIMITER":
@@ -773,7 +782,8 @@ class Parser:
             elif self.currentToken.tag == "TT_MULT_COMMENT_START":
                 self.handleMultiLineComment()
             else:
-                print(self.currentToken, "ERROR: cannot parse %s" % repr(self.currentToken))
+                print(self.currentToken, "ERROR: cannot parse %s" %
+                      repr(self.currentToken))
                 return
 
             self.advance()

@@ -1,6 +1,4 @@
 from constants import *
-from lolcode_lexer import *
-from lolcode_parser import *
 
 
 class Interpreter:
@@ -19,9 +17,9 @@ class Interpreter:
 
     def printTree(self, node):
         if hasattr(node, 'left'):
-            left = self.printTree(node.left)
+            self.printTree(node.left)
         if hasattr(node, 'right'):
-            right = self.printTree(node.right)
+            self.printTree(node.right)
         print(repr(node.token))
 
     def visit(self, node):
@@ -279,7 +277,7 @@ class Interpreter:
                 self.symbolTable["IT"] = {
                     "varValue": result, "varType": self.getValueDataType(result)}
         return True
-    
+
     def visit_Visible(self, node):
         concatenated = ""
         for o in node.operandList:
@@ -301,13 +299,13 @@ class Interpreter:
 
     def visit_Bool(self, node):
         return self.lolCodeBoolToPython(node.value)
-    
+
     def pythonBoolToLolCode(self, value):
         if value == True:
             return "WIN"
         elif value == False:
             return "FAIL"
-    
+
     def lolCodeBoolToPython(self, value):
         if value == "WIN":
             return True
@@ -316,18 +314,3 @@ class Interpreter:
 
     def visit_String(self, node):
         return str(node.value).replace("\"", "")
-
-
-tokens = lexer(readSourceCode("LOLCODE_example/bestcase.lol"))
-# pp.pprint(tokens)
-
-myParser = Parser(tokens)
-myParser.run()
-
-if myParser:
-    myInterpreter = Interpreter(myParser)
-
-    # pp.pprint(myParser.trees)
-
-    myInterpreter()
-    # pp.pprint(myInterpreter.symbolTable)
