@@ -34,14 +34,14 @@ class Parser:
         elif self.currentToken.tag == "TT_IDENTIFIER":
             left = Variable(self.currentToken)
         else:
-            print("ERROR: Expected an arithmetic expression")
+            print(self.currentToken, "ERROR: Expected an arithmetic expression")
             return
 
         # point to the next token
         self.advance()
 
         if self.currentToken.tag != "TT_MULT_ARITY_CONJUNCTOR":
-            print("ERROR: Expected AN")
+            print(self.currentToken, "ERROR: Expected AN")
             return
 
         # point to the next token
@@ -54,7 +54,7 @@ class Parser:
         elif self.currentToken.tag == "TT_IDENTIFIER":
             right = Variable(self.currentToken)
         else:
-            print("ERROR: Expected an arithmetic expression")
+            print(self.currentToken, "ERROR: Expected an arithmetic expression")
             return
 
         return BinOp(left, node, right)
@@ -78,14 +78,14 @@ class Parser:
         elif self.currentToken.tag == "TT_IDENTIFIER":
             left = Variable(self.currentToken)
         else:
-            print("ERROR: Expected an boolean expression")
+            print(self.currentToken, "ERROR: Expected an boolean expression")
             return
 
         # point to the next token
         self.advance()
 
         if self.currentToken.tag != "TT_MULT_ARITY_CONJUNCTOR":
-            print("ERROR: Expected AN")
+            print(self.currentToken, "ERROR: Expected AN")
             return
 
         # point to the next token
@@ -100,7 +100,7 @@ class Parser:
         elif self.currentToken.tag == "TT_IDENTIFIER":
             right = Variable(self.currentToken)
         else:
-            print("ERROR: Expected an boolean expression")
+            print(self.currentToken, "ERROR: Expected an boolean expression")
             return
 
         return BinOp(left, node, right)
@@ -129,14 +129,14 @@ class Parser:
         elif self.currentToken.tag == "TT_IDENTIFIER":
             left = Variable(self.currentToken)
         else:
-            print("ERROR: Expected a valid expression")
+            print(self.currentToken, "ERROR: Expected a valid expression")
             return
 
         # point to the next token
         self.advance()
 
         if self.currentToken.tag != "TT_MULT_ARITY_CONJUNCTOR":
-            print("ERROR: Expected AN")
+            print(self.currentToken, "ERROR: Expected AN")
             return
 
         # point to the next token
@@ -157,7 +157,7 @@ class Parser:
         elif self.currentToken.tag == "TT_IDENTIFIER":
             right = Variable(self.currentToken)
         else:
-            print("ERROR: Expected a valid expression")
+            print(self.currentToken, "ERROR: Expected a valid expression")
             return
 
         return BinOp(left, node, right)
@@ -193,7 +193,7 @@ class Parser:
         self.advance()
 
         if self.currentToken.tag != "TT_MULT_ARITY_CONJUNCTOR":
-            print("ERROR: Expected AN")
+            print(self.currentToken, "ERROR: Expected AN")
             return
 
         self.advance()
@@ -213,7 +213,7 @@ class Parser:
 
         while self.currentToken.tag not in ("TT_DELIMITER, TT_MULT_ARITY_ENDER"):
             if self.currentToken.tag != "TT_MULT_ARITY_CONJUNCTOR":
-                print("ERROR: Expected AN")
+                print(self.currentToken, "ERROR: Expected AN")
                 return
 
             self.advance()
@@ -235,11 +235,11 @@ class Parser:
             self.advance()
 
         if self.currentToken.tag == "TT_DELIMITER":
-            print("ERROR: Expected MKAY")
+            print(self.currentToken, "ERROR: Expected MKAY")
             return
 
         if not currentChild.value:
-            print("ERROR: Expected an valid expression")
+            print(self.currentToken, "ERROR: Expected an valid expression")
             return
 
         return result
@@ -278,7 +278,7 @@ class Parser:
         self.advance()
 
         if self.currentToken.tag != "TT_MULT_ARITY_CONJUNCTOR":
-            print("ERROR: Expected AN")
+            print(self.currentToken, "ERROR: Expected AN")
             return
 
         self.advance()
@@ -304,7 +304,7 @@ class Parser:
 
         while self.currentToken.tag not in ("TT_DELIMITER, TT_MULT_ARITY_ENDER"):
             if self.currentToken.tag != "TT_MULT_ARITY_CONJUNCTOR":
-                print("ERROR: Expected AN")
+                print(self.currentToken, "ERROR: Expected AN")
                 return
 
             self.advance()
@@ -332,7 +332,7 @@ class Parser:
             self.advance()
 
         if not currentChild.value:
-            print("ERROR: Expected an valid expression")
+            print(self.currentToken, "ERROR: Expected an valid expression")
             return
 
         return result
@@ -352,7 +352,7 @@ class Parser:
         elif self.currentToken.tag == "TT_IDENTIFIER":
             operand = Variable(self.currentToken)
         else:
-            print("ERROR: Expected an boolean expression")
+            print(self.currentToken, "ERROR: Expected an boolean expression")
             return
 
         return UnOp(node, operand)
@@ -367,7 +367,7 @@ class Parser:
         self.advance()
 
         if self.currentToken.tag != "TT_IDENTIFIER":
-            print("ERROR: expected a variable identifier")
+            print(self.currentToken, "ERROR: expected a variable identifier")
             return
 
         varObj = Variable(self.currentToken)
@@ -376,7 +376,7 @@ class Parser:
 
         if self.currentToken.tag != "TT_DELIMITER":
             if self.currentToken.tag != "TT_VAR_ASSIGNMENT":
-                print("ERROR: expected ITZ")
+                print(self.currentToken, "ERROR: expected ITZ")
                 return
 
             self.advance()
@@ -391,6 +391,8 @@ class Parser:
                 varValue = self.parseArithmeticBinaryOperation()
             elif self.currentToken.tag in BOOLEAN_BINARY_OPERATIONS:
                 varValue = self.parseBooleanBinaryOperation()
+            elif self.currentToken.tag in INFINITE_ARITY_OPERATIONS:
+                varValue = self.parseAndOrInfiniteOperation()
             elif self.currentToken.tag in COMPARISON_OPERATIONS:
                 varValue = self.parseComparisonBinaryOperation()
             elif self.currentToken.tag == "TT_NOT":
@@ -398,7 +400,7 @@ class Parser:
             elif self.currentToken.tag == "TT_IDENTIFIER":
                 varValue = Variable(self.currentToken)
             else:
-                print("ERROR: expected a valid expression")
+                print(self.currentToken, "ERROR: expected a valid expression")
                 return
 
         return VariableDeclaration(node, varObj, varValue)
@@ -413,7 +415,7 @@ class Parser:
             return left
 
         if self.currentToken.tag != "TT_ASSIGN_TO_VAR":
-            print("ERROR: expected R")
+            print(self.currentToken, "ERROR: expected R")
             return
 
         node = self.currentToken
@@ -430,6 +432,8 @@ class Parser:
             right = self.parseArithmeticBinaryOperation()
         elif self.currentToken.tag in BOOLEAN_BINARY_OPERATIONS:
             right = self.parseBooleanBinaryOperation()
+        elif self.currentToken.tag in INFINITE_ARITY_OPERATIONS:
+            right = self.parseAndOrInfiniteOperation()
         elif self.currentToken.tag in COMPARISON_OPERATIONS:
             right = self.parseComparisonBinaryOperation()
         elif self.currentToken.tag == "TT_NOT":
@@ -437,7 +441,7 @@ class Parser:
         elif self.currentToken.tag == "TT_IDENTIFIER":
             right = Variable(self.currentToken)
         else:
-            print("ERROR: expected a valid expression")
+            print(self.currentToken, "ERROR: expected a valid expression")
             return
 
         return BinOp(left, node, right)
@@ -453,11 +457,11 @@ class Parser:
         while self.currentToken.tag == "TT_DELIMITER":
             self.advance()
             if self.currentToken.tag == "TT_END_OF_FILE":
-                print("ERROR: expected YA RLY")
+                print(self.currentToken, "ERROR: expected YA RLY")
                 return
 
         if self.currentToken.tag != "TT_IF_BLOCK":
-            print("ERROR: expected YA RLY")
+            print(self.currentToken, "ERROR: expected YA RLY")
             return
 
         self.advance()
@@ -465,7 +469,7 @@ class Parser:
         while self.currentToken.tag == "TT_DELIMITER":
             self.advance()
             if self.currentToken.tag == "TT_END_OF_FILE":
-                print("ERROR: expected a valid expression or statement")
+                print(self.currentToken, "ERROR: expected a valid expression or statement")
                 return
 
         while self.currentToken.tag not in ("TT_IF_SWITCH_END", "TT_ELSE_BLOCK"):
@@ -474,7 +478,7 @@ class Parser:
                 continue
 
             if self.currentToken.tag == "TT_END_OF_FILE":
-                print("ERROR: expected NO WAI or OIC")
+                print(self.currentToken, "ERROR: expected NO WAI or OIC")
                 return
 
             if self.currentToken.tag in ("TT_NUMBR, TT_NUMBAR"):
@@ -493,8 +497,10 @@ class Parser:
                 trueCodeBlock.append(self.parseNotUnaryOperation())
             elif self.currentToken.tag == "TT_IDENTIFIER":
                 trueCodeBlock.append(self.parseVariable())
+            elif self.currentToken.tag == "TT_PRINT":
+                trueCodeBlock.append(self.parseVisible())
             else:
-                print("ERROR: expected a valid expression or statement")
+                print(self.currentToken, "ERROR: expected a valid expression or statement")
                 return
 
             self.advance()
@@ -508,7 +514,7 @@ class Parser:
                     continue
 
                 if self.currentToken.tag == "TT_END_OF_FILE":
-                    print("ERROR: expected OIC")
+                    print(self.currentToken, "ERROR: expected OIC")
                     return
 
                 if self.currentToken.tag in ("TT_NUMBR, TT_NUMBAR"):
@@ -529,14 +535,16 @@ class Parser:
                     falseCodeBlock.append(self.parseNotUnaryOperation())
                 elif self.currentToken.tag == "TT_IDENTIFIER":
                     falseCodeBlock.append(self.parseVariable())
+                elif self.currentToken.tag == "TT_PRINT":
+                    falseCodeBlock.append(self.parseVisible())
                 else:
-                    print("ERROR: expected a valid expression or statement")
+                    print(self.currentToken, "ERROR: expected a valid expression or statement")
                     return
 
                 self.advance()
 
             if not falseCodeBlock:
-                print("ERROR: expected a valid expression or statement")
+                print(self.currentToken, "ERROR: expected a valid expression or statement")
                 return
 
         return IfElseStatement(node, trueCodeBlock, falseCodeBlock)
@@ -552,7 +560,7 @@ class Parser:
         while self.currentToken.tag == "TT_DELIMITER":
             self.advance()
             if self.currentToken.tag == "TT_END_OF_FILE":
-                print("ERROR: expected WTF?")
+                print(self.currentToken, "ERROR: expected WTF?")
                 return
 
         while self.currentToken.tag != "TT_IF_SWITCH_END":
@@ -560,12 +568,12 @@ class Parser:
                 self.advance()
                 continue
             if self.currentToken.tag == "TT_END_OF_FILE":
-                print("ERROR: expected OIC")
+                print(self.currentToken, "ERROR: expected OIC")
                 return
             if self.currentToken.tag in ("TT_SWITCH_BLOCK", "TT_DEFAULT_CASE_BLOCK"):
                 if self.currentToken.tag == "TT_DEFAULT_CASE_BLOCK":
                     if hasDefaultCase:
-                        print("ERROR: cannot have multiple default cases")
+                        print(self.currentToken, "ERROR: cannot have multiple default cases")
                         return
 
                     hasDefaultCase = True
@@ -577,11 +585,11 @@ class Parser:
 
                 codeBlockList.append(self.parseSwitchCaseCodeBlock())
             else:
-                print("ERROR: expected OMG or OMGWTF")
+                print(self.currentToken, "ERROR: expected OMG or OMGWTF")
                 return
         
         if not codeBlockList:
-            print("ERROR: must have atleast one OMG <literal>")
+            print(self.currentToken, "ERROR: must have atleast one OMG <literal>")
             return
 
         return SwitchCaseStatement(node, codeBlockList)
@@ -598,7 +606,7 @@ class Parser:
 
 
         if node.tag == "TT_SWITCH_BLOCK" and self.currentToken.tag not in DATA_TYPES:
-            print("ERROR: expected a literal")
+            print(self.currentToken, "ERROR: expected a literal")
             return
 
         if self.currentToken.tag in ("TT_NUMBR", "TT_NUMBAR"):
@@ -613,7 +621,7 @@ class Parser:
         while self.currentToken.tag == "TT_DELIMITER":
             self.advance()
             if self.currentToken.tag == "TT_END_OF_FILE":
-                print("ERROR: expected a valid statement or expression")
+                print(self.currentToken, "ERROR: expected a valid statement or expression")
                 return
 
         while self.currentToken.tag not in ("TT_SWITCH_BLOCK", "TT_DEFAULT_CASE_BLOCK", "TT_IF_SWITCH_END"):
@@ -622,7 +630,7 @@ class Parser:
                 continue
 
             if self.currentToken.tag == "TT_END_OF_FILE":
-                print("ERROR: expected a valid statement or expression")
+                print(self.currentToken, "ERROR: expected a valid statement or expression")
                 return
 
             if self.currentToken.tag in ("TT_NUMBR, TT_NUMBAR"):
@@ -641,16 +649,18 @@ class Parser:
                 codeBlockUnit.append(self.parseNotUnaryOperation())
             elif self.currentToken.tag == "TT_IDENTIFIER":
                 codeBlockUnit.append(self.parseVariable())
+            elif self.currentToken.tag == "TT_PRINT":
+                codeBlockUnit.append(self.parseVisible())
             elif self.currentToken.tag == "TT_BREAK":
                 codeBlockUnit.append(BreakStatement(self.currentToken))
             else:
-                print("ERROR: expected a valid statement or expression")
+                print(self.currentToken, "ERROR: expected a valid statement or expression")
                 return
 
             self.advance()
 
         if not codeBlockUnit:
-            print("ERROR: expected a valid statement or expression")
+            print(self.currentToken, "ERROR: expected a valid statement or expression")
             return
 
         return SwitchCaseCodeBlock(node, literalValue, codeBlockUnit)
@@ -664,8 +674,12 @@ class Parser:
         
         while self.currentToken.tag != "TT_DELIMITER":
             if self.currentToken.tag == "TT_END_OF_FILE":
-                print("ERROR: expected a valid expression")
+                print(self.currentToken, "ERROR: expected a valid expression")
                 return
+            
+            if self.currentToken.tag == "TT_SINGLE_COMMENT":
+                self.handleSingleLineComment()
+                break
 
             if self.currentToken.tag in ARITHMETIC_BINARY_OPERATIONS:
                 operandList.append(self.parseArithmeticBinaryOperation())
@@ -690,13 +704,13 @@ class Parser:
             elif self.currentToken.tag in ("TT_YARN"):
                 operandList.append(String(self.currentToken))
             else:
-                print("ERROR: expected a valid expression")
+                print(self.currentToken, "ERROR: expected a valid expression")
                 return
 
             self.advance()
 
         if not operandList:
-            print("ERROR: expected a valid expression")
+            print(self.currentToken, "ERROR: expected a valid expression")
             return
         
         
@@ -712,13 +726,13 @@ class Parser:
             self.advance()
         
         if self.currentToken.tag != "TT_MULT_COMMENT_END":
-            print("ERROR: expected TLDR")
+            print(self.currentToken, "ERROR: expected TLDR")
             return
         
         self.advance()
 
         if self.currentToken.tag != "TT_DELIMITER":
-            print("ERROR: expected newline")
+            print(self.currentToken, "ERROR: expected newline")
             return
 
     def run(self):
@@ -759,7 +773,7 @@ class Parser:
             elif self.currentToken.tag == "TT_MULT_COMMENT_START":
                 self.handleMultiLineComment()
             else:
-                print("ERROR: cannot parse %s" % repr(self.currentToken))
+                print(self.currentToken, "ERROR: cannot parse %s" % repr(self.currentToken))
                 return
 
             self.advance()

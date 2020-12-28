@@ -1,17 +1,22 @@
+BTW for if-else statements
 HAI
-  I HAS A flag ITZ WIN
-  I HAS A anotherflag ITZ FAIL
+  I HAS A a ITZ 12
+  I HAS A b ITZ 5
 
-  VISIBLE flag " and " anotherflag " is " BOTH OF flag AN anotherflag
-  VISIBLE flag " or " anotherflag " is " EITHER OF flag AN anotherflag
-  VISIBLE flag " xor " anotherflag " is " WON OF flag AN anotherflag
-  VISIBLE "not " flag " is " NOT flag
-  
-  I HAS A flag3 ITZ WIN
-  I HAS A flag4 ITZ WIN
-  
-  I HAS A flag5
-  flag5 R ALL OF flag AN anotherflag AN flag3 AN flag4
-  VISIBLE flag5
+  BOTH SAEM 18 AN SUM OF 12 AN b
+  O RLY?
+    YA RLY
+      VISIBLE IT
+      VISIBLE "it is the same"
+      b R 17
+      SUM OF b AN DIFF OF a AN 5
+      VISIBLE IT
+    NO WAI
+      VISIBLE IT
+      VISIBLE "it is not!"
+      b R 18
+      DIFFRINT b AN SUM OF 12 AN b
+      VISIBLE IT
+  OIC
 
 KTHXBYE

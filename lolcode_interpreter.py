@@ -15,7 +15,7 @@ class Interpreter:
             # print(result)
             if t.token.tag in EXPRESSIONS:
                 self.symbolTable["IT"] = {
-                    "varValue": result, "varType": self.getVariableDataType(result)}
+                    "varValue": result, "varType": self.getValueDataType(result)}
 
     def printTree(self, node):
         if hasattr(node, 'left'):
@@ -45,7 +45,7 @@ class Interpreter:
             val = self.visit(node.varValue)
 
             if val:
-                varType = self.getVariableDataType(val)
+                varType = self.getValueDataType(val)
 
         self.symbolTable[node.varObj.name] = {
             "varValue": val, "varType": varType}
@@ -59,7 +59,7 @@ class Interpreter:
 
         return self.symbolTable[node.name]["varValue"]
 
-    def getVariableDataType(self, val):
+    def getValueDataType(self, val):
         varType = "NOOB"
 
         if type(val) == int:
@@ -213,7 +213,7 @@ class Interpreter:
             varType = "NOOB"
 
             if val:
-                varType = self.getVariableDataType(val)
+                varType = self.getValueDataType(val)
 
             self.symbolTable[node.left.name] = {
                 "varValue": val, "varType": varType}
@@ -222,9 +222,17 @@ class Interpreter:
     def visit_InfOp(self, node):
         if node.token.tag == "TT_INFINITY_CONCAT":
             if not node.child:
-                return str(self.visit(node.value))
+                result = self.visit(node.value)
+                if self.getValueDataType(result) == "TROOF":
+                    result = self.pythonBoolToLolCode(result)
+
+                return str(result)
             else:
-                return str(self.visit(node.value)) + self.visit_InfOp(node.child)
+                result = self.visit(node.value)
+                if self.getValueDataType(result) == "TROOF":
+                    result = self.pythonBoolToLolCode(result)
+
+                return result + self.visit_InfOp(node.child)
         elif node.token.tag == "TT_INFINITY_OR":
             if not node.child:
                 return self.visit(node.value)
@@ -251,7 +259,7 @@ class Interpreter:
             # print(result)
             if t.token.tag in EXPRESSIONS:
                 self.symbolTable["IT"] = {
-                    "varValue": result, "varType": self.getVariableDataType(result)}
+                    "varValue": result, "varType": self.getValueDataType(result)}
 
         return
 
@@ -269,13 +277,17 @@ class Interpreter:
             # print(result)
             if c.token.tag in EXPRESSIONS:
                 self.symbolTable["IT"] = {
-                    "varValue": result, "varType": self.getVariableDataType(result)}
+                    "varValue": result, "varType": self.getValueDataType(result)}
         return True
     
     def visit_Visible(self, node):
         concatenated = ""
         for o in node.operandList:
-            concatenated += str(self.visit(o))
+            result = self.visit(o)
+
+            if self.getValueDataType(result) == "TROOF":
+                result = self.pythonBoolToLolCode(result)
+            concatenated += str(result)
         print(concatenated)
 
     def visit_NoneType(self, node):
@@ -288,9 +300,18 @@ class Interpreter:
             return float(node.value)
 
     def visit_Bool(self, node):
-        if node.value == "WIN":
+        return self.lolCodeBoolToPython(node.value)
+    
+    def pythonBoolToLolCode(self, value):
+        if value == True:
+            return "WIN"
+        elif value == False:
+            return "FAIL"
+    
+    def lolCodeBoolToPython(self, value):
+        if value == "WIN":
             return True
-        elif node.value == "FAIL":
+        elif value == "FAIL":
             return False
 
     def visit_String(self, node):
@@ -305,7 +326,6 @@ myParser.run()
 
 if myParser:
     myInterpreter = Interpreter(myParser)
-    # print(tokens)
 
     # pp.pprint(myParser.trees)
 
