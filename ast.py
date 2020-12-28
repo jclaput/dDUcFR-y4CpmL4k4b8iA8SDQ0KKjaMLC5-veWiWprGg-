@@ -69,11 +69,16 @@ class Visible(AST):
         self.value = token.value
         self.operandList = operandList
 
+class Gimmeh(AST):
+    def __init__(self, token, variable):
+        self.token = token
+        self.value = token.value
+        self.variable = variable
+
 class Num:
     def __init__(self, token):
         self.token = token
         self.value = token.value
-
 
 class Bool:
     def __init__(self, token):

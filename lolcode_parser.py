@@ -726,6 +726,16 @@ class Parser:
 
         return Visible(node, operandList)
 
+    def parseGimmeh(self):
+        node = self.currentToken
+        self.advance()
+
+        if self.currentToken.tag != "TT_IDENTIFIER":
+            print("ERROR: expected a valid identifier")
+            return
+        
+        return Gimmeh(node, Variable(self.currentToken))
+
     def handleSingleLineComment(self):
         while self.currentToken.tag not in ("TT_DELIMITER", "TT_END_OF_FILE"):
             self.advance()
@@ -771,6 +781,8 @@ class Parser:
                 self.trees.append(self.parseSwitchCaseStatement())
             elif self.currentToken.tag == "TT_PRINT":
                 self.trees.append(self.parseVisible())
+            elif self.currentToken.tag == "TT_INPUT":
+                self.trees.append(self.parseGimmeh())
             elif self.currentToken.tag in ("TT_NUMBR", "TT_NUMBAR"):
                 self.trees.append(Num(self.currentToken))
             elif self.currentToken.tag in ("TT_TROOF"):

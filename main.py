@@ -32,7 +32,7 @@ def execute():
     myParser()
     
     myInterpreter = Interpreter(myParser)
-    myInterpreter()
+    myInterpreter(window)
 
     codeOutputTextBox.configure(state='disabled')
 
@@ -51,7 +51,8 @@ def execute():
     
     # # Populate symbolTableTreeview with the results
     for k,v in myInterpreter.symbolTable.items():
-        symbolTableTreeview.insert('', 'end', values=(k, v["varValue"]))
+        varValue = myInterpreter.pythonBoolToLolCode(v["varValue"]) if v["varValue"] in (True, False) else v["varValue"]
+        symbolTableTreeview.insert('', 'end', values=(k, varValue))
 
 
 window = Tk()

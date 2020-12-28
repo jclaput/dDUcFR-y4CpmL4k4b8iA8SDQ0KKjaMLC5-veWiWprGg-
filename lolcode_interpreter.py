@@ -1,3 +1,4 @@
+from tkinter import simpledialog
 from constants import *
 
 
@@ -6,8 +7,10 @@ class Interpreter:
         self.parser = parser
         self.symbolTable = {"IT": {"varValue": None, "varType": "NOOB"}}
         self.errorOccured = False
+        self.window = None
 
-    def __call__(self):
+    def __call__(self, window):
+        self.window = window
         for t in self.parser.trees:
             result = self.visit(t)
             # print(result)
@@ -283,11 +286,35 @@ class Interpreter:
         for o in node.operandList:
             result = self.visit(o)
 
+            if result == None:
+                continue
+
             if self.getValueDataType(result) == "TROOF":
                 result = self.pythonBoolToLolCode(result)
             concatenated += str(result)
-        print(concatenated)
+        
+        if concatenated:
+            print(concatenated)
 
+    def visit_Gimmeh(self, node):
+        if not self.isExistingVariable(node.variable.name):
+            print("ERROR: uninitialized variable")
+            return
+        
+        newValue = simpledialog.askstring("Input", "GIMMEH encountered", parent=self.window)
+        
+        if newValue in ("WIN", "FAIL"):
+            newValue = self.lolCodeBoolToPython(newValue)
+        else:
+            try:
+                newValue = float(newValue)
+                if newValue.is_integer():
+                    newValue = int(newValue)
+            except:
+                print("")
+    
+        self.symbolTable[node.variable.name] = {"varValue": newValue, "varType": self.getValueDataType(newValue)}
+ 
     def visit_NoneType(self, node):
         return
 
