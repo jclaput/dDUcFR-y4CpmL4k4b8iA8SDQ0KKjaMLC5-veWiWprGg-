@@ -12,7 +12,7 @@ class Interpreter:
     def __call__(self):
         for t in self.parser.trees:
             result = self.visit(t)
-            print(result)
+            # print(result)
             if t.token.tag in EXPRESSIONS:
                 self.symbolTable["IT"] = {
                     "varValue": result, "varType": self.getVariableDataType(result)}
@@ -248,7 +248,7 @@ class Interpreter:
 
         for t in whichCodeBlock:
             result = self.visit(t)
-            print(result)
+            # print(result)
             if t.token.tag in EXPRESSIONS:
                 self.symbolTable["IT"] = {
                     "varValue": result, "varType": self.getVariableDataType(result)}
@@ -257,18 +257,23 @@ class Interpreter:
 
     def visit_SwitchCaseStatement(self, node):
         for c in node.codeBlockList:
-            if self.symbolTable["IT"]["varValue"] == c.literalValue or c.token.tag == "TT_DEFAULT_CASE_BLOCK":
-                self.visit_SwitchCaseCodeBlock(c)
+            if c.token.tag == "TT_DEFAULT_CASE_BLOCK" or self.symbolTable["IT"]["varValue"] == self.visit(c.literalValue):
+                if not self.visit_SwitchCaseCodeBlock(c):
+                    break
 
     def visit_SwitchCaseCodeBlock(self, node):
         for c in node.codeBlockUnit:
             if c.token.tag == "TT_BREAK":
-                break
+                return False
             result = self.visit(c)
-            print(result)
+            # print(result)
             if c.token.tag in EXPRESSIONS:
                 self.symbolTable["IT"] = {
                     "varValue": result, "varType": self.getVariableDataType(result)}
+        return True
+
+    def visit_NoneType(self, node):
+        return
 
     def visit_Num(self, node):
         if node.token.tag == "TT_NUMBR":

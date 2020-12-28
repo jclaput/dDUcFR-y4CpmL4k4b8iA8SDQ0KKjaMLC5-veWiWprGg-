@@ -638,7 +638,7 @@ class Parser:
             elif self.currentToken.tag == "TT_IDENTIFIER":
                 codeBlockUnit.append(self.parseVariable())
             elif self.currentToken.tag == "TT_BREAK":
-                codeBlockUnit.append(self.currentToken)
+                codeBlockUnit.append(BreakStatement(self.currentToken))
             else:
                 print("ERROR: expected a valid statement or expression")
                 return
