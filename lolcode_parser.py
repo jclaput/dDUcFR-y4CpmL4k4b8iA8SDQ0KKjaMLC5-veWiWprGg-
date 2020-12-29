@@ -305,7 +305,7 @@ class Parser:
 
         self.advance()
 
-        while self.currentToken.tag not in ("TT_DELIMITER, TT_MULT_ARITY_ENDER"):
+        while self.currentToken.tag not in ("TT_DELIMITER, TT_MULT_ARITY_ENDER, TT_SINGLE_COMMENT"):
             if self.currentToken.tag != "TT_MULT_ARITY_CONJUNCTOR":
                 print(self.currentToken, "ERROR: Expected AN")
                 return
@@ -333,6 +333,9 @@ class Parser:
                 currentChild.value = Variable(self.currentToken)
 
             self.advance()
+        
+        if self.currentToken.tag == "TT_SINGLE_COMMENT":
+            self.handleSingleLineComment()
 
         if not currentChild.value:
             print(self.currentToken, "ERROR: Expected an valid expression")
@@ -378,6 +381,10 @@ class Parser:
         self.advance()
 
         if self.currentToken.tag != "TT_DELIMITER":
+            if self.currentToken.tag == "TT_SINGLE_COMMENT":
+                self.handleSingleLineComment()
+                return VariableDeclaration(node, varObj, varValue)
+
             if self.currentToken.tag != "TT_VAR_ASSIGNMENT":
                 print(self.currentToken, "ERROR: expected ITZ")
                 return
@@ -414,7 +421,7 @@ class Parser:
         left = Variable(self.currentToken)
         self.advance()
 
-        if self.currentToken.tag == "TT_DELIMITER":
+        if self.currentToken.tag in ("TT_DELIMITER", "TT_SINGLE_COMMENT"):
             return left
 
         if self.currentToken.tag != "TT_ASSIGN_TO_VAR":
@@ -462,6 +469,8 @@ class Parser:
             if self.currentToken.tag == "TT_END_OF_FILE":
                 print(self.currentToken, "ERROR: expected YA RLY")
                 return
+        
+        
 
         if self.currentToken.tag != "TT_IF_BLOCK":
             print(self.currentToken, "ERROR: expected YA RLY")
@@ -503,6 +512,8 @@ class Parser:
                 trueCodeBlock.append(self.parseVariable())
             elif self.currentToken.tag == "TT_PRINT":
                 trueCodeBlock.append(self.parseVisible())
+            elif self.currentToken.tag == "TT_INPUT":
+                trueCodeBlock.append(self.parseGimmeh())
             else:
                 print(self.currentToken,
                       "ERROR: expected a valid expression or statement")
@@ -542,6 +553,8 @@ class Parser:
                     falseCodeBlock.append(self.parseVariable())
                 elif self.currentToken.tag == "TT_PRINT":
                     falseCodeBlock.append(self.parseVisible())
+                elif self.currentToken.tag == "TT_INPUT":
+                    falseCodeBlock.append(self.parseGimmeh())
                 else:
                     print(self.currentToken,
                           "ERROR: expected a valid expression or statement")
@@ -566,6 +579,7 @@ class Parser:
 
         while self.currentToken.tag == "TT_DELIMITER":
             self.advance()
+
             if self.currentToken.tag == "TT_END_OF_FILE":
                 print(self.currentToken, "ERROR: expected WTF?")
                 return
@@ -574,9 +588,15 @@ class Parser:
             if self.currentToken.tag == "TT_DELIMITER":
                 self.advance()
                 continue
+            
+            if self.currentToken.tag == "TT_SINGLE_COMMENT":
+                self.handleSingleLineComment()
+                self.advance()
+            
             if self.currentToken.tag == "TT_END_OF_FILE":
                 print(self.currentToken, "ERROR: expected OIC")
                 return
+
             if self.currentToken.tag in ("TT_SWITCH_BLOCK", "TT_DEFAULT_CASE_BLOCK"):
                 if self.currentToken.tag == "TT_DEFAULT_CASE_BLOCK":
                     if hasDefaultCase:
@@ -660,8 +680,12 @@ class Parser:
                 codeBlockUnit.append(self.parseVariable())
             elif self.currentToken.tag == "TT_PRINT":
                 codeBlockUnit.append(self.parseVisible())
+            elif self.currentToken.tag == "TT_INPUT":
+                codeBlockUnit.append(self.parseGimmeh())
             elif self.currentToken.tag == "TT_BREAK":
                 codeBlockUnit.append(BreakStatement(self.currentToken))
+            elif self.currentToken.tag == "TT_SINGLE_COMMENT":
+                self.handleSingleLineComment()
             else:
                 print(self.currentToken,
                       "ERROR: expected a valid statement or expression")

@@ -12,8 +12,11 @@ class Interpreter:
     def __call__(self, window):
         self.window = window
         for t in self.parser.trees:
+            # print(t)
+            # print(t.token)
             result = self.visit(t)
             # print(result)
+            
             if t.token.tag in EXPRESSIONS:
                 self.symbolTable["IT"] = {
                     "varValue": result, "varType": self.getValueDataType(result)}
@@ -308,6 +311,7 @@ class Interpreter:
         else:
             try:
                 newValue = float(newValue)
+                
                 if newValue.is_integer():
                     newValue = int(newValue)
             except:

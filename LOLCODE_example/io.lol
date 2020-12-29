@@ -1,4 +1,4 @@
-HAI 1.2
+HAI
 	I HAS A num1
 	I HAS A num2
 

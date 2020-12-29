@@ -103,8 +103,6 @@ def getLexemeClassification(lexeme):
         return "DIFFRINT"
     elif re.match(SMOOSH_REGEX, lexeme):
         return "SMOOSH"
-    elif re.match(MAEK_REGEX, lexeme):
-        return "MAEK"
     elif re.match(AN_REGEX, lexeme):
         return "AN"
     elif re.match(A_REGEX, lexeme):
@@ -121,8 +119,6 @@ def getLexemeClassification(lexeme):
         return "O RLY?"
     elif re.match(YA_RLY_REGEX, lexeme):
         return "YA RLY"
-    elif re.match(MEBBE_REGEX, lexeme):
-        return "MEBBE"
     elif re.match(NO_WAI_REGEX, lexeme):
         return "NO WAI"
     elif re.match(OIC_REGEX, lexeme):
@@ -152,6 +148,7 @@ def lexer(sourceCodeString):
     for line in lineList:
         ENCOUNTERED_DOUBLE_QUOTE = False
         TO_APPEND_FLAG = False
+        ENCOUNTERED_SINGLE_COMMENT = False
         currentWord = ""
         appendedKeyword = ""
         classification = ""
@@ -163,6 +160,8 @@ def lexer(sourceCodeString):
 
         # Look for lexemes for each word
         for lexeme in lexemeList:
+            if getLexemeClassification(lexeme) == "BTW":
+                break
             # To retain spaces inside a yarn literal, stop ignoring spaces when you encountered a double quote
             if lexemeIsEmpty(lexeme) == True and ENCOUNTERED_DOUBLE_QUOTE == False:
                 continue

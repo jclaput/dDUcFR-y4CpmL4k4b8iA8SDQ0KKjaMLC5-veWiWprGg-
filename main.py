@@ -37,7 +37,7 @@ def execute():
     codeOutputTextBox.configure(state='disabled')
 
     lexemeTableTreeview.delete(*lexemeTableTreeview.get_children())
-    symbolTableTreeview.delete(*symbolTableTreeview.get_children())
+    symbolTableTreeview.delete(*symbolTableTreeview.get_children()) 
 
     # Populate lexemeTableTreeview with the results
     for l in lexemeTable:
@@ -49,9 +49,9 @@ def execute():
 
         lexemeTableTreeview.insert('', 'end', values=(l.value, lexemeDescription[l.tag]))
     
-    # # Populate symbolTableTreeview with the results
+    # Populate symbolTableTreeview with the results
     for k,v in myInterpreter.symbolTable.items():
-        varValue = myInterpreter.pythonBoolToLolCode(v["varValue"]) if v["varValue"] in (True, False) else v["varValue"]
+        varValue = myInterpreter.pythonBoolToLolCode(v["varValue"]) if type(v["varValue"]) == bool else v["varValue"]
         symbolTableTreeview.insert('', 'end', values=(k, varValue))
 
 
