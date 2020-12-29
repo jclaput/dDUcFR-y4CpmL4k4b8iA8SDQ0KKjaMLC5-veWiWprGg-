@@ -333,9 +333,6 @@ class Parser:
                 currentChild.value = Variable(self.currentToken)
 
             self.advance()
-        
-        if self.currentToken.tag == "TT_SINGLE_COMMENT":
-            self.handleSingleLineComment()
 
         if not currentChild.value:
             print(self.currentToken, "ERROR: Expected an valid expression")
@@ -381,10 +378,6 @@ class Parser:
         self.advance()
 
         if self.currentToken.tag != "TT_DELIMITER":
-            if self.currentToken.tag == "TT_SINGLE_COMMENT":
-                self.handleSingleLineComment()
-                return VariableDeclaration(node, varObj, varValue)
-
             if self.currentToken.tag != "TT_VAR_ASSIGNMENT":
                 print(self.currentToken, "ERROR: expected ITZ")
                 return
@@ -421,7 +414,7 @@ class Parser:
         left = Variable(self.currentToken)
         self.advance()
 
-        if self.currentToken.tag in ("TT_DELIMITER", "TT_SINGLE_COMMENT"):
+        if self.currentToken.tag in ("TT_DELIMITER""):
             return left
 
         if self.currentToken.tag != "TT_ASSIGN_TO_VAR":
@@ -589,10 +582,6 @@ class Parser:
                 self.advance()
                 continue
             
-            if self.currentToken.tag == "TT_SINGLE_COMMENT":
-                self.handleSingleLineComment()
-                self.advance()
-            
             if self.currentToken.tag == "TT_END_OF_FILE":
                 print(self.currentToken, "ERROR: expected OIC")
                 return
@@ -684,8 +673,6 @@ class Parser:
                 codeBlockUnit.append(self.parseGimmeh())
             elif self.currentToken.tag == "TT_BREAK":
                 codeBlockUnit.append(BreakStatement(self.currentToken))
-            elif self.currentToken.tag == "TT_SINGLE_COMMENT":
-                self.handleSingleLineComment()
             else:
                 print(self.currentToken,
                       "ERROR: expected a valid statement or expression")
@@ -711,10 +698,6 @@ class Parser:
             if self.currentToken.tag == "TT_END_OF_FILE":
                 print(self.currentToken, "ERROR: expected a valid expression")
                 return
-
-            if self.currentToken.tag == "TT_SINGLE_COMMENT":
-                self.handleSingleLineComment()
-                break
 
             if self.currentToken.tag in ARITHMETIC_BINARY_OPERATIONS:
                 operandList.append(self.parseArithmeticBinaryOperation())
@@ -813,8 +796,6 @@ class Parser:
                 self.trees.append(Bool(self.currentToken))
             elif self.currentToken.tag in ("TT_YARN"):
                 self.trees.append(String(self.currentToken))
-            elif self.currentToken.tag == "TT_SINGLE_COMMENT":
-                self.handleSingleLineComment()
             elif self.currentToken.tag == "TT_MULT_COMMENT_START":
                 self.handleMultiLineComment()
             else:
