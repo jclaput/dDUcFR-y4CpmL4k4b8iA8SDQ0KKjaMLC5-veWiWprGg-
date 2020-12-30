@@ -22,6 +22,7 @@ class Interpreter:
                     "varValue": result, "varType": self.getValueDataType(result)}
 
     def printTree(self, node):
+        # For diagnostics or debugging
         if hasattr(node, 'left'):
             self.printTree(node.left)
         if hasattr(node, 'right'):
@@ -29,6 +30,8 @@ class Interpreter:
         print(repr(node.token))
 
     def visit(self, node):
+        # Each AST node has a corresponding method when visited
+        # eg. AST node of type Visible. Invoking self.visit(node) will call visit_Visible(self, node)
         methodName = 'visit_' + type(node).__name__
         visitor = getattr(self, methodName)
         return visitor(node)
@@ -38,12 +41,10 @@ class Interpreter:
         varType = "NOOB"
 
         if node.varObj.name == "IT":
-            print("ERROR: cannot use implicit variable IT")
-            return
+            raise Exception("ERROR: cannot use implicit variable IT")
 
         if self.isExistingVariable(node.varObj.name):
-            print("ERROR: variable already exists")
-            return
+            raise Exception("ERROR: variable %s already exists" % node.varObj.name)
 
         if node.varValue:  # Variable token has a value, meaning its data type is not NOOB
             val = self.visit(node.varValue)
@@ -58,8 +59,7 @@ class Interpreter:
 
     def visit_Variable(self, node):
         if not self.isExistingVariable(node.name):
-            print("ERROR: variable does not exist")
-            return
+            raise Exception("ERROR: variable %s does not exist" % node.name)
 
         return self.symbolTable[node.name]["varValue"]
 
@@ -90,107 +90,143 @@ class Interpreter:
         # Arithmetic Binary Operations
         if node.token.tag == "TT_ADD":
             try:
+                # Check if correct data type usage
+                if self.getValueDataType(self.visit(node.left)) not in ("NUMBR", "NUMBAR") or self.getValueDataType(self.visit(node.right)) not in ("NUMBR", "NUMBAR"):
+                    raise TypeError
+
                 result = self.visit(node.left) + self.visit(node.right)
-                if node.left.token.tag == "TT_NUMBAR" or node.right.token.tag == "TT_NUMBAR":
-                    result = float(result)
-                else:
+                hasNumbar = False
+
+                try:
+                    # Check if atleast one of the operands is a NUMBAR
+                    hasNumbar = self.getValueDataType(self.implicitCastNum(self.visit(node.left))) == "NUMBAR" or self.getValueDataType(self.implicitCastNum(self.visit(node.right))) == "NUMBAR"
+                except:
+                    print("")
+
+                if hasNumbar == False:
                     result = int(result)
+                    
                 return result
             except TypeError:
-                print("ERROR: variable datatype")
+                raise Exception("ERROR: Data type mismatch. Expected NUMBR or NUMBAR for SUM OF")
             return
         if node.token.tag == "TT_SUB":
             try:
+                # Check if correct data type usage
+                if self.getValueDataType(self.visit(node.left)) not in ("NUMBR", "NUMBAR") or self.getValueDataType(self.visit(node.right)) not in ("NUMBR", "NUMBAR"):
+                    raise TypeError
+
                 result = self.visit(node.left) - self.visit(node.right)
-                if node.left.token.tag == "TT_NUMBAR" or node.right.token.tag == "TT_NUMBAR":
-                    result = float(result)
-                else:
+                hasNumbar = False
+
+                try:
+                    # Check if atleast one of the operands is a NUMBAR
+                    hasNumbar = self.getValueDataType(self.implicitCastNum(self.visit(node.left))) == "NUMBAR" or self.getValueDataType(self.implicitCastNum(self.visit(node.right))) == "NUMBAR"
+                except:
+                    print("")
+
+                if hasNumbar == False:
                     result = int(result)
                 return result
             except TypeError:
-                print("ERROR: variable datatype")
+                raise Exception("ERROR: Data type mismatch. Expected NUMBR or NUMBAR for DIFF OF")
             return
         if node.token.tag == "TT_MUL":
             try:
+                # Check if correct data type usage
+                if self.getValueDataType(self.visit(node.left)) not in ("NUMBR", "NUMBAR") or self.getValueDataType(self.visit(node.right)) not in ("NUMBR", "NUMBAR"):
+                    raise TypeError
+
                 result = self.visit(node.left) * self.visit(node.right)
-                if node.left.token.tag == "TT_NUMBAR" or node.right.token.tag == "TT_NUMBAR":
-                    result = float(result)
-                else:
+                hasNumbar = False
+
+                try:
+                    # Check if atleast one of the operands is a NUMBAR
+                    hasNumbar = self.getValueDataType(self.implicitCastNum(self.visit(node.left))) == "NUMBAR" or self.getValueDataType(self.implicitCastNum(self.visit(node.right))) == "NUMBAR"
+                except:
+                    print("")
+
+                if hasNumbar == False:
                     result = int(result)
                 return result
             except TypeError:
-                print("ERROR: variable datatype")
+                raise Exception("ERROR: Data type mismatch. Expected NUMBR or NUMBAR for PRODUKT OF")
             return
         if node.token.tag == "TT_DIV":
             try:
+                # Check if correct data type usage
+                if self.getValueDataType(self.visit(node.left)) not in ("NUMBR", "NUMBAR") or self.getValueDataType(self.visit(node.right)) not in ("NUMBR", "NUMBAR"):
+                    raise TypeError
                 result = self.visit(node.left) / self.visit(node.right)
-                if node.left.token.tag == "TT_NUMBAR" or node.right.token.tag == "TT_NUMBAR":
-                    result = float(result)
-                else:
-                    result = int(result)
                 return result
             except TypeError:
-                print("ERROR: variable datatype")
+                raise Exception("ERROR: Data type mismatch. Expected NUMBR or NUMBAR for DIV OF")
             except ZeroDivisionError:
-                print("ERROR: division by zero")
+                raise Exception("ERROR: division by zero")
 
             return
         if node.token.tag == "TT_MOD":
             try:
+                # Check if correct data type usage
+                if self.getValueDataType(self.visit(node.left)) not in ("NUMBR", "NUMBAR") or self.getValueDataType(self.visit(node.right)) not in ("NUMBR", "NUMBAR"):
+                    raise TypeError
                 result = self.visit(node.left) % self.visit(node.right)
-                if node.left.token.tag == "TT_NUMBAR" or node.right.token.tag == "TT_NUMBAR":
-                    result = float(result)
-                else:
-                    result = int(result)
                 return result
             except TypeError:
-                print("ERROR: variable datatype")
+                raise Exception("ERROR: Data type mismatch. Expected NUMBR or NUMBAR for MOD OF")
 
             return
         if node.token.tag == "TT_MAX":
             try:
+                # Check if correct data type usage
+                if self.getValueDataType(self.visit(node.left)) not in ("NUMBR", "NUMBAR") or self.getValueDataType(self.visit(node.right)) not in ("NUMBR", "NUMBAR"):
+                    raise TypeError
                 result = max(self.visit(node.left), self.visit(node.right))
-                if node.left.token.tag == "TT_NUMBAR" or node.right.token.tag == "TT_NUMBAR":
-                    result = float(result)
-                else:
-                    result = int(result)
                 return result
             except TypeError:
-                print("ERROR: variable datatype")
+                raise Exception("ERROR: Data type mismatch. Expected NUMBR or NUMBAR for MAX OF")
 
             return
 
         if node.token.tag == "TT_MIN":
             try:
+                # Check if correct data type usage
+                if self.getValueDataType(self.visit(node.left)) not in ("NUMBR", "NUMBAR") or self.getValueDataType(self.visit(node.right)) not in ("NUMBR", "NUMBAR"):
+                    raise TypeError
                 result = min(self.visit(node.left), self.visit(node.right))
-                if node.left.token.tag == "TT_NUMBAR" or node.right.token.tag == "TT_NUMBAR":
-                    result = float(result)
-                else:
-                    result = int(result)
                 return result
             except TypeError:
-                print("ERROR: variable datatype")
+                raise Exception("ERROR: Data type mismatch. Expected NUMBR or NUMBAR for MIN OF")
 
             return
 
         # Boolean Binary Operations
         if node.token.tag == "TT_AND":
             try:
+                # Check if correct data type usage
+                if self.getValueDataType(self.visit(node.left)) != "TROOF" or self.getValueDataType(self.visit(node.right)) != "TROOF":
+                    raise TypeError
                 return self.visit(node.left) and self.visit(node.right)
             except TypeError:
-                print("ERROR: variable datatype")
+                raise Exception("ERROR: Data type mismatch. Expected TROOF for BOTH OF")
             return
         if node.token.tag == "TT_XOR":
             try:
+                # Check if correct data type usage
+                if self.getValueDataType(self.visit(node.left)) != "TROOF" or self.getValueDataType(self.visit(node.right)) != "TROOF":
+                    raise TypeError
                 return self.visit(node.left) ^ self.visit(node.right)
             except TypeError:
-                print("ERROR: variable datatype")
+                raise Exception("ERROR: Data type mismatch. Expected TROOF for EITHER OF")
             return
         if node.token.tag == "TT_OR":
             try:
+                # Check if correct data type usage
+                if self.getValueDataType(self.visit(node.left)) != "TROOF" or self.getValueDataType(self.visit(node.right)) != "TROOF":
+                    raise TypeError
                 return self.visit(node.left) or self.visit(node.right)
             except TypeError:
-                print("ERROR: variable datatype")
+                raise Exception("ERROR: Data type mismatch. Expected TROOF for WON OF")
             return
 
         # Comparison Binary Operations
@@ -198,20 +234,19 @@ class Interpreter:
             try:
                 return self.visit(node.left) == self.visit(node.right)
             except TypeError:
-                print("ERROR: variable datatype")
+                raise Exception("ERROR: Data type mismatch. Expected a valid expression for BOTH SAEM")
             return
         if node.token.tag == "TT_NOT_EQUAL":
             try:
                 return self.visit(node.left) != self.visit(node.right)
             except TypeError:
-                print("ERROR: variable datatype")
+                raise Exception("ERROR: Data type mismatch. Expected a valid expression for DIFFRINT")
             return
 
         # Variable Assignment Statement
         if node.token.tag == "TT_ASSIGN_TO_VAR":
             if not self.isExistingVariable(node.left.name):
-                print("ERROR: variable does not exist")
-                return
+                raise Exception("ERROR: variable %s does not exist" % node.left.name)
 
             val = self.visit(node.right)
             varType = "NOOB"
@@ -219,44 +254,58 @@ class Interpreter:
             if val:
                 varType = self.getValueDataType(val)
 
-            self.symbolTable[node.left.name] = {
-                "varValue": val, "varType": varType}
+            self.symbolTable[node.left.name] = {"varValue": val, "varType": varType}
             return self.symbolTable[node.left.name]
 
     def visit_InfOp(self, node):
         if node.token.tag == "TT_INFINITY_CONCAT":
-            if not node.child:
-                result = self.visit(node.value)
-                if self.getValueDataType(result) == "TROOF":
-                    result = self.pythonBoolToLolCode(result)
+            result = self.visit(node.value)
 
+            if result == None:
+                raise Exception("ERROR: cannot concatenate with a value of type NOOB")
+            
+            if self.getValueDataType(result) == "TROOF":
+                result = self.pythonBoolToLolCode(result)
+
+            # recursive call until it no longer has a child, meaning it has no more child to concatenate to
+            if not node.child:
                 return str(result)
             else:
-                result = self.visit(node.value)
-                if self.getValueDataType(result) == "TROOF":
-                    result = self.pythonBoolToLolCode(result)
-
                 return result + self.visit_InfOp(node.child)
         elif node.token.tag == "TT_INFINITY_OR":
+            # recursive call until it no longer has a child, meaning it reached the last operand
             if not node.child:
                 return self.visit(node.value)
             else:
-                return self.visit(node.value) or self.visit_InfOp(node.child)
+                try:
+                    return self.visit(node.value) or self.visit(node.child)
+                except TypeError:
+                    raise Exception("ERROR: Data type mismatch. Expected TROOF for ANY OF")
         elif node.token.tag == "TT_INFINITY_AND":
+            # recursive call until it no longer has a child, meaning it reached the last operand
             if not node.child:
                 return self.visit(node.value)
             else:
-                return self.visit(node.value) and self.visit_InfOp(node.child)
+                try:
+                    return self.visit(node.value) and self.visit(node.child)
+                except TypeError:
+                    raise Exception("ERROR: Data type mismatch. Expected TROOF for ALL OF")
+        else:
+            raise Exception("ERROR: %s is invalid" % node.token)
 
     def visit_IfElseStatement(self, node):
         whichCodeBlock = None
+        
+        if self.getValueDataType(self.symbolTable["IT"]["varValue"]) != "TROOF":
+            raise Exception("ERROR: implicit IT variable must be in the form of TROOF to evaluate If-Else Statement")
+
         if self.symbolTable["IT"]["varValue"]:
             whichCodeBlock = node.trueCodeBlock
         else:
             whichCodeBlock = node.falseCodeBlock
 
         if not whichCodeBlock:
-            return
+            raise Exception("ERROR: expected a codeblock")
 
         for t in whichCodeBlock:
             result = self.visit(t)
@@ -270,7 +319,7 @@ class Interpreter:
     def visit_SwitchCaseStatement(self, node):
         for c in node.codeBlockList:
             if c.token.tag == "TT_DEFAULT_CASE_BLOCK" or self.symbolTable["IT"]["varValue"] == self.visit(c.literalValue):
-                if not self.visit_SwitchCaseCodeBlock(c):
+                if self.visit_SwitchCaseCodeBlock(c) == False:
                     break
 
     def visit_SwitchCaseCodeBlock(self, node):
@@ -290,7 +339,7 @@ class Interpreter:
             result = self.visit(o)
 
             if result == None:
-                continue
+                raise Exception("ERROR: cannot print of type NOOB")
 
             if self.getValueDataType(result) == "TROOF":
                 result = self.pythonBoolToLolCode(result)
@@ -301,8 +350,7 @@ class Interpreter:
 
     def visit_Gimmeh(self, node):
         if not self.isExistingVariable(node.variable.name):
-            print("ERROR: uninitialized variable")
-            return
+            raise Exception("ERROR: uninitialized variable")
         
         newValue = simpledialog.askstring("Input", "GIMMEH encountered", parent=self.window)
         
@@ -310,10 +358,7 @@ class Interpreter:
             newValue = self.lolCodeBoolToPython(newValue)
         else:
             try:
-                newValue = float(newValue)
-                
-                if newValue.is_integer():
-                    newValue = int(newValue)
+                newValue = self.implicitCastNum(newValue)
             except:
                 print("")
     
@@ -342,6 +387,14 @@ class Interpreter:
             return True
         elif value == "FAIL":
             return False
+
+    def implicitCastNum(self, value):
+        newValue = float(value)
+                
+        if newValue.is_integer():
+            newValue = int(newValue)
+        
+        return newValue
 
     def visit_String(self, node):
         return str(node.value).replace("\"", "")

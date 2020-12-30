@@ -21,23 +21,36 @@ class PrintLogger():
         pass
 
 def execute():
+    # clear previous contents of lexeme and symbol table tree view if any
+    lexemeTableTreeview.delete(*lexemeTableTreeview.get_children())
+    symbolTableTreeview.delete(*symbolTableTreeview.get_children()) 
+
+    # set code output textbox state to normal so the contents can be modified
     codeOutputTextBox.configure(state='normal')
     codeOutputTextBox.delete("1.0", END)
     
+    # redirect the console logs of python to the code output textbox
     pl = PrintLogger(codeOutputTextBox)
     sys.stdout = pl
 
+    # get table of tokens
     lexemeTable = lexer(codeInputTextBox.get("1.0", END))
-    myParser = Parser(lexemeTable)
-    myParser()
+
+    try:
+        # pass the table of tokens to the Parser so it can create an immediate representation (Abstract Syntax Tree)
+        myParser = Parser(lexemeTable)
+        myParser()
+        
+        # pass the AST made by the Parser to the Interpreter so it can be evaluated
+        myInterpreter = Interpreter(myParser)
+        myInterpreter(window)
+    except Exception as e:
+        print(e)
+        return
     
-    myInterpreter = Interpreter(myParser)
-    myInterpreter(window)
 
+    # set its state to disabled to lock its contents
     codeOutputTextBox.configure(state='disabled')
-
-    lexemeTableTreeview.delete(*lexemeTableTreeview.get_children())
-    symbolTableTreeview.delete(*symbolTableTreeview.get_children()) 
 
     # Populate lexemeTableTreeview with the results
     for l in lexemeTable:
@@ -54,7 +67,7 @@ def execute():
         varValue = myInterpreter.pythonBoolToLolCode(v["varValue"]) if type(v["varValue"]) == bool else v["varValue"]
         symbolTableTreeview.insert('', 'end', values=(k, varValue))
 
-
+# GUI Code
 window = Tk()
 window.geometry("1280x720")
 window.resizable(0, 0)
