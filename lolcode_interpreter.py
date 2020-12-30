@@ -271,7 +271,7 @@ class Interpreter:
             if not node.child:
                 return str(result)
             else:
-                return result + self.visit_InfOp(node.child)
+                return str(result) + self.visit_InfOp(node.child)
         elif node.token.tag == "TT_INFINITY_OR":
             # recursive call until it no longer has a child, meaning it reached the last operand
             if not node.child:

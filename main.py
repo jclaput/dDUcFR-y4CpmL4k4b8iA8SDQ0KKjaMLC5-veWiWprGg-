@@ -46,6 +46,8 @@ def execute():
         myInterpreter(window)
     except Exception as e:
         print(e)
+        # set its state to disabled to lock its contents
+        codeOutputTextBox.configure(state='disabled')
         return
     
 
